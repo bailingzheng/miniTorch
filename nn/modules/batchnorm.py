@@ -1,0 +1,58 @@
+# torch.nn.BatchNorm1d(num_features, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True, 
+#   device=None, dtype=None)
+import torch
+import torch.nn as nn
+
+
+__all__ = [
+    'BatchNorm1d'
+]
+
+
+class BatchNorm1d(nn.Module):
+    """Applies Batch Normalization over a 2D or 3D input as described in the paper 
+    Batch Normalization: Accelerating Deep Network Training by Reducing Internal Covariate Shift.
+
+    Parameters
+        num_features (int) - number of features or channels C of the input
+        eps (float) - a value added to the denominator for numerical stability. Default: 1e-5
+        momentum (float) - the value used for the running_mean and running_var computation. 
+            Can be set to None for cumulative moving average (i.e. simple average). Default: 0.1
+
+    Shape
+        (*, num_features) -> (*, num_features)
+    """
+
+    def __init__(self, num_features, eps=1e-05, momentum=0.1):
+        super().__init__()
+        self.eps = eps
+        self.momentum = momentum
+        self.training = True
+        self.gamma = torch.ones((1, num_features))
+        self.beta = torch.zeros((1, num_features))
+        self.running_mean = torch.zeros((1, num_features))
+        self.running_var = torch.ones((1, num_features))
+
+    def _check_input_dim(self, input):
+        if input.dim() != 2 and input.dim() != 3:
+            raise ValueError(
+                f"expected 2D or 3D input (got {input.dim()}D input)"
+            )
+
+    def forward(self, x):
+        self._check_input_dim(x)
+        
+        if self.training:
+            xmean = x.mean(0, keepdim=True)
+            xvar = x.var(0, keepdim=True)
+            self.out = self.gamma * (x - xmean) / (xvar**0.5 + self.eps) + self.beta
+            with torch.no_grad():
+                self.running_mean = (1 - self.momentum) * self.running_mean + self.momentum * xmean
+                self.running_var = (1 - self.momentum) * self.running_var + self.momentum * xvar
+        else:
+            self.out = self.gamma * (x - self.running_mean) / (self.running_var**0.5 + self.eps) + self.beta
+        return self.out
+
+    def parameters(self):
+        ps = [self.gamma, self.beta]
+        return ps

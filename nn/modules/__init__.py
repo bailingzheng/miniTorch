@@ -1,5 +1,7 @@
 from .linear import Linear
+from .batchnorm import BatchNorm1d
 
 __all__ = [
-    'Linear'
+    'Linear',
+    'BatchNorm1d'
 ]
