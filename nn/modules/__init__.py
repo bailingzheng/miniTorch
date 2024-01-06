@@ -1,13 +1,15 @@
-from .linear import Linear
+from .activation import MultiHeadAttention
 from .batchnorm import BatchNorm1d
-from .sparse import Embedding
-from .flatten import Flatten
 from .container import Sequential
+from .flatten import Flatten
+from .linear import Linear
+from .sparse import Embedding
 
 __all__ = [
+    'MultiHeadAttention',
     'BatchNorm1d',
-    'Embedding',
+    'Sequential',
     'Flatten',
     'Linear',
-    'Sequential'
+    'Embedding'
 ]
