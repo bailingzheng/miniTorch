@@ -1,10 +1,13 @@
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
 
 __all__ = [
-    'MultiHeadAttention'
+    'MultiHeadAttention',
+    'ReLU',
+    'Tanh'
 ]
 
 
@@ -53,3 +56,26 @@ class MultiHeadAttention(nn.Module):
         y = attn_weights @ v # (N, num_heads, T, H)
         y = y.transpose(1, 2).contiguous().view(N, T, self.embed_dim)
         return y
+
+
+class Tanh(nn.Module):
+    """Applies the Hyperbolic Tangent (Tanh) function element-wise.
+    Tanh(x) = tanh(x) = (exp(x) - exp(-x)) / (exp(x) + exp(-x))
+
+    Shape
+        (*) -> (*) where * means any number of dimensions.
+    """
+
+    # torch.nn.Tanh(*args, **kwargs)
+    def forward(self, x):
+        return torch.tanh(x)
+
+    
+class ReLU(nn.Module):
+    """Applies the rectified linear unit function element-wise.
+    ReLU(x) = max(0, x)
+    """
+
+    # torch.nn.ReLU(inplace=False)
+    def forward(self, x):
+        return F.relu(x)

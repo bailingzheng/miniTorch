@@ -5,7 +5,7 @@ I'm trying to implement a much simplified version of [torch.nn](https://pytorch.
 The APIs are almost the same as PyTorch, except the optional parameters are not supported.
 
 APIs that are implemented so far: 
-- Activation Layers (MultiHeadAttention)
+- Activation Layers (MultiHeadAttention, ReLU, Tanh)
 - Dropout Layers (Dropout)
 - Linear Layers (Linear)
 - Normalization Layers (BatchNorm1d, LayerNorm)
