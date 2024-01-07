@@ -1,5 +1,3 @@
-# torch.nn.Flatten(start_dim=1, end_dim=-1)
-
 __all__ = [
     'Flatten'
 ]
@@ -15,6 +13,7 @@ class Flatten:
         (*, S_start, ..., S_end, *) -> (*, S_start * ... * S_end, *)
     """
 
+    # torch.nn.Flatten(start_dim=1, end_dim=-1)
     def __init__(self, start_dim=1, end_dim=-1):
         self.start_dim = start_dim
         self.end_dim = end_dim

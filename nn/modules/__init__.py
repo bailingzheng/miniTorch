@@ -3,6 +3,7 @@ from .batchnorm import BatchNorm1d
 from .container import Sequential
 from .flatten import Flatten
 from .linear import Linear
+from .normalization import LayerNorm
 from .sparse import Embedding
 
 __all__ = [
@@ -11,5 +12,6 @@ __all__ = [
     'Sequential',
     'Flatten',
     'Linear',
+    'LayerNorm',
     'Embedding'
 ]

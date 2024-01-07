@@ -1,10 +1,9 @@
-# torch.nn.Sequential(*args: Module)
+import torch.nn as nn
 
 __all__ = [
     'Sequential'
 ]
 
-import torch.nn as nn
 
 class Sequential(nn.Module):
     """A sequential container. Modules will be added to it in the order they are passed in the constructor.
@@ -13,6 +12,7 @@ class Sequential(nn.Module):
     It then “chains” outputs to inputs sequentially for each subsequent module, finally returning the output of the last module.
     """
 
+    # torch.nn.Sequential(*args: Module)
     def __init__(self, *args):
         super().__init__()
         self.layers = list(args)

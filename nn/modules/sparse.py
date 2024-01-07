@@ -1,6 +1,3 @@
-# torch.nn.Embedding(num_embeddings, embedding_dim, padding_idx=None, max_norm=None, 
-#   norm_type=2.0, scale_grad_by_freq=False, sparse=False, _weight=None, _freeze=False, device=None, dtype=None)
-
 import torch
 import torch.nn as nn
 
@@ -19,14 +16,17 @@ class Embedding(nn.Module):
         (*) -> (*, embedding_dim)
     """
 
+    # torch.nn.Embedding(num_embeddings, embedding_dim, padding_idx=None, max_norm=None, 
+    #   norm_type=2.0, scale_grad_by_freq=False, sparse=False, _weight=None, _freeze=False, device=None, dtype=None)
+
     def __init__(self, num_embeddings, embedding_dim):
         super().__init__()
         self.weight = torch.randn(num_embeddings, embedding_dim)
 
     def forward(self, idx):
-        self.out = self.weight[idx]
-        return self.out
+        y = self.weight[idx]
+        return y
 
     def parameters(self):
         ps = [self.weight]
-        return ps 
+        return ps

@@ -10,7 +10,7 @@ __all__ = [
 
 class MultiHeadAttention(nn.Module):
     """Allows the model to jointly attend to information from different representation subspaces 
-    as described in the paper: Attention Is All You Need.
+    as described in the paper: Attention Is All You Need. (https://arxiv.org/abs/1706.03762)
 
     Parameters
         embed_dim - Total dimension of the model.

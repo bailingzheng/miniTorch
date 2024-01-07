@@ -1,5 +1,3 @@
-# torch.nn.BatchNorm1d(num_features, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True, 
-#   device=None, dtype=None)
 import torch
 import torch.nn as nn
 
@@ -10,8 +8,9 @@ __all__ = [
 
 
 class BatchNorm1d(nn.Module):
-    """Applies Batch Normalization over a 2D or 3D input as described in the paper 
-    Batch Normalization: Accelerating Deep Network Training by Reducing Internal Covariate Shift.
+    """Applies Batch Normalization over a 2D or 3D input as described in the paper: 
+    Batch Normalization: Accelerating Deep Network Training by Reducing Internal Covariate Shift. 
+    (https://arxiv.org/abs/1502.03167)
 
     Parameters
         num_features (int) - number of features or channels C of the input
@@ -23,6 +22,8 @@ class BatchNorm1d(nn.Module):
         (*, num_features) -> (*, num_features)
     """
 
+    # torch.nn.BatchNorm1d(num_features, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True, 
+    #   device=None, dtype=None)
     def __init__(self, num_features, eps=1e-05, momentum=0.1):
         super().__init__()
         self.eps = eps
@@ -45,13 +46,13 @@ class BatchNorm1d(nn.Module):
         if self.training:
             xmean = x.mean(0, keepdim=True)
             xvar = x.var(0, keepdim=True)
-            self.out = self.gamma * (x - xmean) / (xvar**0.5 + self.eps) + self.beta
+            y = self.gamma * (x - xmean) / (xvar**0.5 + self.eps) + self.beta
             with torch.no_grad():
                 self.running_mean = (1 - self.momentum) * self.running_mean + self.momentum * xmean
                 self.running_var = (1 - self.momentum) * self.running_var + self.momentum * xvar
         else:
-            self.out = self.gamma * (x - self.running_mean) / (self.running_var**0.5 + self.eps) + self.beta
-        return self.out
+            y = self.gamma * (x - self.running_mean) / (self.running_var**0.5 + self.eps) + self.beta
+        return y
 
     def parameters(self):
         ps = [self.gamma, self.beta]
