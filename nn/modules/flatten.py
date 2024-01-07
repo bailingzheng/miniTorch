@@ -1,10 +1,10 @@
-# torch.nn.Flatten(start_dim=1, end_dim=-1)
+import torch.nn as nn
 
 __all__ = [
     'Flatten'
 ]
 
-class Flatten:
+class Flatten(nn.Module):
     """Flattens a contiguous range of dims into a tensor. 
 
     Parameters
@@ -15,13 +15,10 @@ class Flatten:
         (*, S_start, ..., S_end, *) -> (*, S_start * ... * S_end, *)
     """
 
+    # torch.nn.Flatten(start_dim=1, end_dim=-1)
     def __init__(self, start_dim=1, end_dim=-1):
         self.start_dim = start_dim
         self.end_dim = end_dim
 
-    def __call__(self, x):
+    def forward(self, x):
        return x.flatten(self.start_dim, self.end_dim)
-
-    def parameters(self):
-        ps = []
-        return ps

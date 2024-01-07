@@ -1,4 +1,3 @@
-# torch.nn.Linear(in_features, out_features, bias=True, device=None, dtype=None)
 import torch
 import torch.nn as nn
 
@@ -20,16 +19,17 @@ class Linear(nn.Module):
         (*, in_features) -> (*, out_features)
     """
 
+    # torch.nn.Linear(in_features, out_features, bias=True, device=None, dtype=None)
     def __init__(self, in_features, out_features, bias=True):
         super().__init__()
         self.weight = torch.randn((in_features, out_features)) / in_features**0.5
-        self.bias = torch.zeros((1, out_features)) if bias else None
+        self.bias = torch.randn((1, out_features)) / in_features**0.5 if bias else None
 
     def forward(self, x):
-        self.out = x @ self.weight
+        y = x @ self.weight
         if self.bias is not None:
-            self.out += self.bias
-        return self.out
+            y += self.bias
+        return y
 
     def parameters(self):
         ps = [self.weight] + ([self.bias] if self.bias is not None else [])
