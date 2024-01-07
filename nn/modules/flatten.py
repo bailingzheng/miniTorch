@@ -1,10 +1,8 @@
-import torch.nn as nn
-
 __all__ = [
     'Flatten'
 ]
 
-class Flatten(nn.Module):
+class Flatten:
     """Flattens a contiguous range of dims into a tensor. 
 
     Parameters
@@ -20,5 +18,5 @@ class Flatten(nn.Module):
         self.start_dim = start_dim
         self.end_dim = end_dim
 
-    def forward(self, x):
+    def __call__(self, x):
        return x.flatten(self.start_dim, self.end_dim)
