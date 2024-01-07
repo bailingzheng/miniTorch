@@ -20,3 +20,7 @@ class Flatten:
 
     def __call__(self, x):
        return x.flatten(self.start_dim, self.end_dim)
+
+    def parameters(self):
+        ps = []
+        return ps
