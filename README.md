@@ -6,6 +6,7 @@ The APIs are almost the same as PyTorch, except the optional parameters are not 
 
 APIs that are implemented so far: 
 - Activation Layers (MultiHeadAttention)
+- Dropout Layers (Dropout)
 - Linear Layers (Linear)
 - Normalization Layers (BatchNorm1d, LayerNorm)
 - Sparse Layers (Embedding)
