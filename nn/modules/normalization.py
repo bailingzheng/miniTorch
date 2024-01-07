@@ -24,9 +24,8 @@ class LayerNorm(nn.Module):
         self.normalized_shape = normalized_shape
         self.eps = eps
 
-        size = [1] if isinstance(normalized_shape, int) else [1] * len(normalized_shape)
-        self.gamma = torch.ones(size)
-        self.beta =  torch.zeros(size)
+        self.gamma = nn.Parameter(torch.ones(normalized_shape))
+        self.beta = nn.Parameter(torch.zeros(normalized_shape))
 
     def forward(self, x):
         dim = -1 if isinstance(self.normalized_shape, int) else list(range(-len(self.normalized_shape), 0))
@@ -34,7 +33,3 @@ class LayerNorm(nn.Module):
         xvar = x.var(dim, keepdim=True)
         y = self.gamma * (x - xmean) / (xvar**0.5 + self.eps) + self.beta
         return y
-
-    def parameters(self):
-        ps = [self.gamma, self.beta]
-        return ps

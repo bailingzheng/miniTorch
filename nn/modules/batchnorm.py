@@ -29,31 +29,21 @@ class BatchNorm1d(nn.Module):
         self.eps = eps
         self.momentum = momentum
         self.training = True
-        self.gamma = torch.ones((1, num_features))
-        self.beta = torch.zeros((1, num_features))
+        self.gamma = nn.Parameter(torch.ones((1, num_features)))
+        self.beta = nn.Parameter(torch.zeros((1, num_features)))
         self.running_mean = torch.zeros((1, num_features))
         self.running_var = torch.ones((1, num_features))
 
-    def _check_input_dim(self, input):
-        if input.dim() != 2 and input.dim() != 3:
-            raise ValueError(
-                f"expected 2D or 3D input (got {input.dim()}D input)"
-            )
-
     def forward(self, x):
-        self._check_input_dim(x)
-        
         if self.training:
-            xmean = x.mean(0, keepdim=True)
-            xvar = x.var(0, keepdim=True)
+            # expect 2D or 3D input
+            dim = 0 if x.dim() == 2 else (0, 1)
+            xmean = x.mean(dim, keepdim=True)
+            xvar = x.var(dim, keepdim=True)
             y = self.gamma * (x - xmean) / (xvar**0.5 + self.eps) + self.beta
-            with torch.no_grad():
-                self.running_mean = (1 - self.momentum) * self.running_mean + self.momentum * xmean
-                self.running_var = (1 - self.momentum) * self.running_var + self.momentum * xvar
+           
+            self.running_mean = (1 - self.momentum) * self.running_mean + self.momentum * xmean
+            self.running_var = (1 - self.momentum) * self.running_var + self.momentum * xvar
         else:
             y = self.gamma * (x - self.running_mean) / (self.running_var**0.5 + self.eps) + self.beta
         return y
-
-    def parameters(self):
-        ps = [self.gamma, self.beta]
-        return ps

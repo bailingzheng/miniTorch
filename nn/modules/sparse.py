@@ -21,12 +21,8 @@ class Embedding(nn.Module):
 
     def __init__(self, num_embeddings, embedding_dim):
         super().__init__()
-        self.weight = torch.randn(num_embeddings, embedding_dim)
+        self.weight = nn.Parameter(torch.randn(num_embeddings, embedding_dim))
 
     def forward(self, idx):
         y = self.weight[idx]
         return y
-
-    def parameters(self):
-        ps = [self.weight]
-        return ps
