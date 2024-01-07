@@ -1,5 +1,6 @@
 from .activation import MultiHeadAttention
 from .batchnorm import BatchNorm1d
+from .dropout import Dropout
 from .flatten import Flatten
 from .linear import Linear
 from .normalization import LayerNorm
@@ -8,6 +9,7 @@ from .sparse import Embedding
 __all__ = [
     'MultiHeadAttention',
     'BatchNorm1d',
+    'Dropout',
     'Flatten',
     'Linear',
     'LayerNorm',
