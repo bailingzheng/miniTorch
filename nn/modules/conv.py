@@ -9,6 +9,10 @@ __all__ = [
 class Conv2d(nn.Module):
     """Applies a 2D convolution over an input signal composed of several input planes.
 
+    y[i, j, m, n] = (weight[j, :, :, :] * x[i, :, (S0*m - P0):(K0 + S0*m - P0), (S1*n - P1):(K1 + S1*n - P1)]).sum() + bias[j]
+
+    where stride is (S0, S1), padding is (P0, P1), and kernel size is (K0, K1).
+
     Parameters
         in_channels (int) - Number of channels in the input image
         out_channels (int) - Number of channels produced by the convolution
@@ -17,10 +21,10 @@ class Conv2d(nn.Module):
         padding (int, tuple or str, optional) - Padding added to all four sides of the input. Default: 0
 
     Shape
-        (N, C_i, H_i, W_i) -> (N, C_o, H_o, W_o)
+        (N, C_in, H_in, W_in) -> (N, C_out, H_out, W_out)
 
-        H_o = (H_i + 2*padding[0] - kernal_size[0]) / stride[0] + 1
-        W_o = (W_i + 2*padding[1] - kernal_size[1]) / stride[1] + 1
+        H_out = (H_in + 2*padding[0] - kernel_size[0]) / stride[0] + 1
+        W_out = (W_in + 2*padding[1] - kernel_size[1]) / stride[1] + 1
 
 
     """
@@ -37,6 +41,5 @@ class Conv2d(nn.Module):
 
     # Convolution arithmetic: https://github.com/vdumoulin/conv_arithmetic/blob/master/README.md
     def forward(self, x):
-        # y[N0, i, H0, W0] = (weight[i, :, :, :] * x[N0, :, :K0, :K1]).sum() + bias[i] when padding == 0
         y = F.conv2d(x, self.weight, bias=self.bias, stride=self.stride, padding=self.padding)
         return y

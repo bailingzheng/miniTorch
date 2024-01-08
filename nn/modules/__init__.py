@@ -7,6 +7,7 @@ from .dropout import Dropout
 from .flatten import Flatten
 from .linear import Linear
 from .normalization import LayerNorm
+from .pooling import MaxPool2d
 from .sparse import Embedding
 
 __all__ = [
@@ -19,5 +20,6 @@ __all__ = [
     'Flatten',
     'Linear',
     'LayerNorm',
+    'MaxPool2d',
     'Embedding'
 ]

@@ -10,5 +10,6 @@ APIs that are implemented so far:
 - Dropout Layers (Dropout)
 - Linear Layers (Linear)
 - Normalization Layers (BatchNorm1d, LayerNorm)
+- Pooling layers (MaxPool2d)
 - Sparse Layers (Embedding)
 - Utilities (Flatten)
