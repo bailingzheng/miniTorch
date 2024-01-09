@@ -5,13 +5,13 @@ import torch.nn.functional as F
 
 
 __all__ = [
-    'MultiHeadAttention',
+    'MultiheadAttention',
     'ReLU',
     'Tanh'
 ]
 
 
-class MultiHeadAttention(nn.Module):
+class MultiheadAttention(nn.Module):
     """Allows the model to jointly attend to information from different representation subspaces 
     as described in the paper: Attention Is All You Need. (https://arxiv.org/abs/1706.03762)
 
@@ -55,7 +55,7 @@ class MultiHeadAttention(nn.Module):
         
         y = attn_weights @ v # (N, num_heads, T, H)
         y = y.transpose(1, 2).contiguous().view(N, T, self.embed_dim)
-        return y
+        return y, attn_weights
 
 
 class Tanh(nn.Module):
