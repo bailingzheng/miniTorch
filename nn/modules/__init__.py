@@ -1,4 +1,4 @@
-from .activation import MultiHeadAttention
+from .activation import MultiheadAttention
 from .activation import ReLU
 from .activation import Tanh
 from .batchnorm import BatchNorm1d
@@ -11,7 +11,7 @@ from .pooling import MaxPool2d
 from .sparse import Embedding
 
 __all__ = [
-    'MultiHeadAttention',
+    'MultiheadAttention',
     'ReLU',
     'Tanh',
     'BatchNorm1d',

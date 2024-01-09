@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-
+import torch.nn.functional as F
 
 __all__ = [
     'LayerNorm'
@@ -30,6 +30,12 @@ class LayerNorm(nn.Module):
     def forward(self, x):
         dim = -1 if isinstance(self.normalized_shape, int) else list(range(-len(self.normalized_shape), 0))
         xmean = x.mean(dim, keepdim=True)
-        xvar = x.var(dim, keepdim=True)
-        y = self.gamma * (x - xmean) / (xvar**0.5 + self.eps) + self.beta
+        # The variance is calculated via the biased estimator
+        xvar = x.var(dim, correction=0, keepdim=True)
+        y = self.gamma * (x - xmean) / (xvar + self.eps)**0.5 + self.beta
+        
+        # normalized_shape = (self.normalized_shape, ) if isinstance(self.normalized_shape, int) else self.normalized_shape
+        # y_layer_norm = F.layer_norm(x, normalized_shape, weight=None, bias=None, eps=1e-05)
+        # print((y_layer_norm - y).abs().max())
+  
         return y
