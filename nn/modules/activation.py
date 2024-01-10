@@ -1,3 +1,4 @@
+import math
 
 import torch
 import torch.nn as nn
@@ -28,34 +29,50 @@ class MultiheadAttention(nn.Module):
         self.embed_dim = embed_dim
         self.num_heads = num_heads
 
+    def _scaled_dot_product_attention(self, query, key, value, attn_mask):
+        L, S = query.size(-2), key.size(-2)
+        scale_factor = 1 / math.sqrt(query.size(-1))
+
+        attn_weight = query @ key.transpose(-2, -1) * scale_factor
+        attn_weight += attn_mask
+        attn_weight = torch.softmax(attn_weight, dim=-1)
+        # attn_weight = torch.dropout(attn_weight, dropout_p, train=True)
+        return attn_weight @ value, attn_weight
+
+
     # forward(query, key, value, key_padding_mask=None, need_weights=True, attn_mask=None, 
     #   average_attn_weights=True, is_causal=False)
     def forward(self, query, key, value):
         """
         Parameters
-            query (Tensor) - Query embeddings of shape (N, T, embed_dim)
-            key (Tensor) - Key embeddings of shape (N, T, embed_dim)
-            value (Tensor) - Value embeddings of shape (N, T, embed_dim)
+            query (Tensor) - Query embeddings of shape (N, L, E)
+            key (Tensor) - Key embeddings of shape (N, S, E)
+            value (Tensor) - Value embeddings of shape (N, S, E_v)
 
-            where N is batch size, T is sequence length.
+            where N is batch size, T is target sequence length, S is source sequence length,
+            E is embedding dimension of query and key, and E_v is embedding dimension of value.
+
+        Shape
+            -> (N, L, E_v)
 
         """
 
-        N, T, _ = query.shape
-        H = self.embed_dim // self.num_heads
-        tril = torch.tril(torch.ones(T, T)).view(1, 1, T, T)
+        N, L, E = query.shape
+        _, S, E_v = value.shape
 
-        q = query.view(N, T, self.num_heads, H).transpose(1, 2) # (N, num_heads, T, H)
-        k = key.view(N, T, self.num_heads, H).transpose(1, 2) 
-        v = value.view(N, T, self.num_heads, H).transpose(1, 2) 
+        q = query.view(N, L, self.num_heads, E // self.num_heads).transpose(1, 2)
+        k = key.view(N, S, self.num_heads, E // self.num_heads).transpose(1, 2) 
+        v = value.view(N, S, self.num_heads, E_v // self.num_heads).transpose(1, 2) 
         
-        attn_weights = q @ k.transpose(-2, -1) * k.size(-1)**-0.5 # (N, num_heads, T, T)
-        attn_weights = attn_weights.masked_fill(tril[:, :, :T, :T] == 0, float('-inf'))
-        attn_weights = F.softmax(attn_weights, dim=-1)
-        
-        y = attn_weights @ v # (N, num_heads, T, H)
-        y = y.transpose(1, 2).contiguous().view(N, T, self.embed_dim)
-        return y, attn_weights
+        attn_mask = torch.tril(torch.ones(L, S)).view(1, 1, L, S)
+        attn_mask = attn_mask.masked_fill(attn_mask[:, :, :, :] == 0, float("-inf"))
+        y, attn_weight = self._scaled_dot_product_attention(q, k, v, attn_mask)
+
+        # y2 = F.scaled_dot_product_attention(q, k, v, attn_mask)
+        # print((y2 - y).abs().max())
+
+        y = y.transpose(1, 2).contiguous().view(N, L, E_v)
+        return y, attn_weight
 
 
 class Tanh(nn.Module):
