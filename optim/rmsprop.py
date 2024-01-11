@@ -41,11 +41,10 @@ class RMSprop(Optimizer):
                 state = self.state[p]
                 if len(state) == 0:
                     state['step'] = 0
+                    state['velocity'] = (1 - group['alpha']) * grad**2
 
                 if state['step'] > 0:
                     state['velocity'] = group['alpha'] * state['velocity'] + (1 - group['alpha']) * grad**2
-                else:
-                    state['velocity'] = (1 - group['alpha']) * grad**2
-
-                p.data += -group['lr'] * grad / (state['velocity']**0.5 + group['eps'])
+                    p.data += -group['lr'] * grad / (state['velocity']**0.5 + group['eps'])
+                    
                 state['step'] += 1
