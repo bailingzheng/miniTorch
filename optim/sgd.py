@@ -7,25 +7,25 @@ __all__ = [
 class SGD(Optimizer):
     """Implements stochastic gradient descent (with momentum).
 
-    Considering the specific case of Momentum, the update can be written as
-        V_t+1 = momentum * V_t + G_t
-        P_t+1 = P_t - lr * V_t+1
+    The update can be written as
+        M = alpha * M + G
+        P = P - lr * M
 
-        where P, G, V denote the parameters, gradient, and velocity respectively.
+        where P, G, M denote the parameters, gradient, and momentum respectively.
 
     Moreover, the initial value of the momentum buffer is set to the gradient value at the first step. 
 
     Parameters
         params (iterable) - iterable of parameters to optimize or dicts defining parameter groups
         lr (float) - learning rate
-        momentum (float, optional) - momentum factor (default: 0)
+        alpha (float, optional) - momentum factor (default: 0)
 
     """
 
     # torch.optim.SGD(params, lr=<required parameter>, momentum=0, dampening=0, weight_decay=0, 
     #   nesterov=False, *, maximize=False, foreach=None, differentiable=False)
-    def __init__(self, params, lr, momentum=0):
-        defaults = dict(lr=lr, momentum=momentum)
+    def __init__(self, params, lr, alpha=0):
+        defaults = dict(lr=lr, alpha=alpha)
         super(SGD, self).__init__(params, defaults)
 
     def step(self):
@@ -40,9 +40,9 @@ class SGD(Optimizer):
                     state['step'] = 0
 
                 if state['step'] > 0:
-                    state['velocity'] = group['momentum'] * state['velocity'] + grad
+                    state['momentum'] = group['alpha'] * state['momentum'] + grad
                 else:
-                    state['velocity'] = grad
+                    state['momentum'] = grad
                 
-                p.data += -group['lr'] * state['velocity']
+                p.data += -group['lr'] * state['momentum']
                 state['step'] += 1
