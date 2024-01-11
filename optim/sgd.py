@@ -38,11 +38,10 @@ class SGD(Optimizer):
                 state = self.state[p]
                 if len(state) == 0:
                     state['step'] = 0
+                    state['momentum'] = grad
 
                 if state['step'] > 0:
                     state['momentum'] = group['alpha'] * state['momentum'] + grad
-                else:
-                    state['momentum'] = grad
+                    p.data += -group['lr'] * state['momentum']
                 
-                p.data += -group['lr'] * state['momentum']
                 state['step'] += 1
