@@ -9,7 +9,7 @@ from .linear import Linear
 from .normalization import LayerNorm
 from .pooling import MaxPool2d
 from .sparse import Embedding
-from .transformer import TransformerDecoderLayer
+from .transformer import TransformerDecoderLayer, TransformerDecoder
 
 __all__ = [
     'MultiheadAttention',
@@ -23,5 +23,6 @@ __all__ = [
     'LayerNorm',
     'MaxPool2d',
     'Embedding',
-    'TransformerDecoderLayer'
+    'TransformerDecoderLayer',
+    'TransformerDecoder'
 ]
