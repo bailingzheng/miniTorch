@@ -12,6 +12,7 @@ The APIs are almost the same as PyTorch, except that some optional parameters ar
 - Normalization Layers (BatchNorm1d, LayerNorm)
 - Pooling layers (MaxPool2d)
 - Sparse Layers (Embedding)
+- Transformer Layers (TransformerDecoderLayer)
 - Utilities (Flatten)
 
 
