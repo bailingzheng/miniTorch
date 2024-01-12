@@ -53,7 +53,7 @@ class MultiheadAttention(nn.Module):
             E is embedding dimension of query and key, and E_v is embedding dimension of value.
 
         Shape
-            -> (N, L, E_v)
+            (N, L, E)[query], (N, S, E)[key], (N, S, E_v)[value] -> (N, L, E_v)
 
         """
 
