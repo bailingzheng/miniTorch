@@ -21,5 +21,5 @@ class Flatten(nn.Module):
         self.start_dim = start_dim
         self.end_dim = end_dim
 
-    def __call__(self, x):
+    def forward(self, x):
        return x.flatten(self.start_dim, self.end_dim)

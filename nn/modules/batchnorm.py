@@ -16,8 +16,9 @@ class BatchNorm1d(nn.Module):
     Parameters
         num_features (int) - number of features or channels C of the input
         eps (float) - a value added to the denominator for numerical stability. Default: 1e-5
+
         momentum (float) - the value used for the running_mean and running_var computation. 
-            Can be set to None for cumulative moving average (i.e. simple average). Default: 0.1
+        Can be set to None for cumulative moving average (i.e. simple average). Default: 0.1
 
     Shape
         (N, C, *) -> (N, C, *)
