@@ -9,7 +9,8 @@ from .normalization import LayerNorm
 __all__ = [
     'TransformerDecoderLayer',
     'TransformerDecoder',
-    'TransformerEncoderLayer'
+    'TransformerEncoderLayer',
+    'TransformerEncoder'
 ]
 
 
@@ -161,7 +162,7 @@ class TransformerEncoderLayer(nn.Module):
         x = self.linear2(self.dropout(self.activation(self.linear1(x))))
         return self.dropout2(x)
 
-    def forward(self, src, src_mask=None, is_causal=False):
+    def forward(self, src, mask=None, is_causal=False):
         """Pass the input through the encoder layer.
 
         Parameters
@@ -174,10 +175,43 @@ class TransformerEncoderLayer(nn.Module):
 
         """
         x = src
-        x += self._sa_block(self.norm1(x), src_mask, is_causal)
+        x += self._sa_block(self.norm1(x), mask, is_causal)
         x += self._ff_block(self.norm2(x))
 
         return x
+
+
+class TransformerEncoder(nn.Module):
+    """TransformerEncoder is a stack of N encoder layers. 
+    Users can build the BERT model with corresponding parameters (https://arxiv.org/abs/1810.04805).
+
+    Parameters
+        encoder_layer - an instance of the TransformerEncoderLayer() class (required).
+        num_layers - the number of sub-encoder-layers in the encoder (required).
+
+    Shape
+        (N, S, E) -> (N, S, E)
+
+    """
+
+    # torch.nn.TransformerEncoder(encoder_layer, num_layers, norm=None, enable_nested_tensor=True, mask_check=True)
+    def __init__(self, encoder_layer, num_layers):
+        super().__init__()
+        self.layers = _get_clones(encoder_layer, num_layers)
+
+    # forward(src, mask=None, src_key_padding_mask=None, is_causal=None)
+    def forward(self, src, mask=None, is_causal=None):
+        """Pass the input through the encoder layers in turn.
+
+        Parameters
+            src (Tensor) - the sequence to the encoder (required).
+            mask (Optional[Tensor]) - the mask for the src sequence (optional).
+            is_causal (Optional[bool]) - If specified, applies a causal mask as mask.
+        """
+        for layer in self.layers:
+            src = layer(src, mask, is_causal)
+
+        return src
 
 
 def _get_clones(module, N):
