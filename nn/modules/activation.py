@@ -14,7 +14,7 @@ __all__ = [
 
 class MultiheadAttention(nn.Module):
     """Allows the model to jointly attend to information from different representation subspaces 
-    as described in the paper: Attention Is All You Need. (https://arxiv.org/abs/1706.03762)
+    as described in the paper: Attention Is All You Need (https://arxiv.org/abs/1706.03762).
 
     Parameters
         embed_dim - Total dimension of the model.
@@ -31,13 +31,13 @@ class MultiheadAttention(nn.Module):
         self.num_heads = num_heads
 
     def _scaled_dot_product_attention(self, query, key, value, attn_mask=None, is_causal=False):
-        L, S = query.size(-2), key.size(-2)
+        T, S = query.size(-2), key.size(-2)
         scale_factor = 1 / math.sqrt(query.size(-1))
-        attn_bias = torch.zeros(L, S, dtype=query.dtype)
+        attn_bias = torch.zeros(T, S, dtype=query.dtype)
  
         if is_causal:
             assert attn_mask is None
-            temp_mask = torch.ones(L, S, dtype=torch.bool).tril(diagonal=0)
+            temp_mask = torch.ones(T, S, dtype=torch.bool).tril(diagonal=0)
             attn_bias = attn_bias.masked_fill(temp_mask.logical_not(), float("-inf"))
             attn_bias.to(query.dtype)
 
@@ -59,29 +59,29 @@ class MultiheadAttention(nn.Module):
     def forward(self, query, key, value, attn_mask=None, is_causal=False):
         """
         Parameters
-            query (Tensor) - Query embeddings of shape (N, L, E)
+            query (Tensor) - Query embeddings of shape (N, T, E)
             key (Tensor) - Key embeddings of shape (N, S, E)
             value (Tensor) - Value embeddings of shape (N, S, E_v)
 
             attn_mask (Optional[Tensor]) - If specified, a 2D or 3D mask preventing attention to certain positions. 
-            Must be of shape (L, S) or (N * num_heads, L, S). Binary and float masks are supported. 
+            Must be of shape (T, S) or (N * num_heads, T, S). Binary and float masks are supported. 
             For a binary mask, a True value indicates that the corresponding position is not allowed to attend. 
             For a float mask, the mask values will be added to the attention weight. 
 
             is_causal (bool) - If specified, applies a causal mask as attention mask. 
 
+        Shape
+            (N, T, E)[query], (N, S, E)[key], (N, S, E_v)[value] -> (N, T, E_v)
+
             where N is batch size, T is target sequence length, S is source sequence length,
             E is embedding dimension of query and key, and E_v is embedding dimension of value.
 
-        Shape
-            (N, L, E)[query], (N, S, E)[key], (N, S, E_v)[value] -> (N, L, E_v)
-
         """
 
-        N, L, E = query.shape
+        N, T, E = query.shape
         _, S, E_v = value.shape
 
-        q = query.view(N, L, self.num_heads, E // self.num_heads).transpose(1, 2)
+        q = query.view(N, T, self.num_heads, E // self.num_heads).transpose(1, 2)
         k = key.view(N, S, self.num_heads, E // self.num_heads).transpose(1, 2) 
         v = value.view(N, S, self.num_heads, E_v // self.num_heads).transpose(1, 2) 
 
@@ -90,7 +90,7 @@ class MultiheadAttention(nn.Module):
         # y2 = F.scaled_dot_product_attention(q, k, v, attn_mask=attn_mask, is_causal=is_causal)
         # print((y2 - y).abs().max())
 
-        y = y.transpose(1, 2).contiguous().view(N, L, E_v)
+        y = y.transpose(1, 2).contiguous().view(N, T, E_v)
         return y, attn_weight
 
 

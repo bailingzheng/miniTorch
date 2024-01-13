@@ -10,7 +10,8 @@ __all__ = [
     'TransformerDecoderLayer',
     'TransformerDecoder',
     'TransformerEncoderLayer',
-    'TransformerEncoder'
+    'TransformerEncoder',
+    'Transformer'
 ]
 
 
@@ -23,6 +24,9 @@ class TransformerDecoderLayer(nn.Module):
         nhead (int) - the number of heads in the multiheadattention models (required).
         dim_feedforward (int) - the dimension of the feedforward network model (default=2048).
         dropout (float) - the dropout value (default=0.1).
+                
+    Shape
+        (N, T, E)[tgt], (N, S, E)[memory] -> (N, T, E)
 
     """
 
@@ -70,9 +74,6 @@ class TransformerDecoderLayer(nn.Module):
         Parameters
             tgt (Tensor) - the sequence to the decoder layer (required).
             memory (Tensor) - the sequence from the last layer of the encoder (required).
-            
-        Shape
-            (N, L, E)[tgt], (N, S, E)[memory] -> (N, L, E)
 
         """
         x = tgt
@@ -89,12 +90,17 @@ class TransformerDecoder(nn.Module):
     Parameters
         decoder_layer - an instance of the TransformerDecoderLayer() class (required).
         num_layers - the number of sub-decoder-layers in the decoder (required).
+        norm - the layer normalization component (optional).
+
+    Shape
+        (N, T, E)[tgt], (N, S, E)[memory] -> (N, T, E)
 
     """
     # torch.nn.TransformerDecoder(decoder_layer, num_layers, norm=None)
-    def __init__(self, decoder_layer, num_layers):
+    def __init__(self, decoder_layer, num_layers, norm=None):
         super().__init__()
         self.layers = _get_clones(decoder_layer, num_layers)
+        self.norm = norm
 
     # forward(tgt, memory, tgt_mask=None, memory_mask=None, tgt_key_padding_mask=None, 
     #   memory_key_padding_mask=None, tgt_is_causal=None, memory_is_causal=False)
@@ -104,9 +110,6 @@ class TransformerDecoder(nn.Module):
         Parameters
             tgt (Tensor) - the sequence to the decoder (required).
             memory (Tensor) - the sequence from the last layer of the encoder (required).
-
-        Shape
-            (N, L, E)[tgt], (N, S, E)[memory] -> (N, L, E)
         
         """
         for layer in self.layers:
@@ -118,7 +121,10 @@ class TransformerDecoder(nn.Module):
                 tgt_is_causal=tgt_is_causal, 
                 memory_is_causal=memory_is_causal
             )
-
+        
+        if self.norm is not None:
+            tgt = self.norm(tgt)
+        
         return tgt
 
 
@@ -131,6 +137,9 @@ class TransformerEncoderLayer(nn.Module):
         nhead (int) - the number of heads in the multiheadattention models (required).
         dim_feedforward (int) - the dimension of the feedforward network model (default=2048).
         dropout (float) - the dropout value (default=0.1).
+
+    Shape
+        (N, S, E) -> (N, S, E)
 
     """
 
@@ -170,9 +179,6 @@ class TransformerEncoderLayer(nn.Module):
             src_mask (Optional[Tensor]) - the mask for the src sequence (optional).
             is_causal (bool) - If specified, applies a causal mask as src mask. Default: False. 
 
-        Shape
-            (N, S, E) -> (N, S, E)
-
         """
         x = src
         x += self._sa_block(self.norm1(x), mask, is_causal)
@@ -188,6 +194,7 @@ class TransformerEncoder(nn.Module):
     Parameters
         encoder_layer - an instance of the TransformerEncoderLayer() class (required).
         num_layers - the number of sub-encoder-layers in the encoder (required).
+        norm - the layer normalization component (optional).
 
     Shape
         (N, S, E) -> (N, S, E)
@@ -195,9 +202,10 @@ class TransformerEncoder(nn.Module):
     """
 
     # torch.nn.TransformerEncoder(encoder_layer, num_layers, norm=None, enable_nested_tensor=True, mask_check=True)
-    def __init__(self, encoder_layer, num_layers):
+    def __init__(self, encoder_layer, num_layers, norm=None):
         super().__init__()
         self.layers = _get_clones(encoder_layer, num_layers)
+        self.norm = norm
 
     # forward(src, mask=None, src_key_padding_mask=None, is_causal=None)
     def forward(self, src, mask=None, is_causal=None):
@@ -208,11 +216,81 @@ class TransformerEncoder(nn.Module):
             mask (Optional[Tensor]) - the mask for the src sequence (optional).
             is_causal (Optional[bool]) - If specified, applies a causal mask as mask.
         """
+        x = src
         for layer in self.layers:
-            src = layer(src, mask, is_causal)
+            x = layer(x, mask, is_causal)
+        
+        if self.norm is not None:
+            x = self.norm(x)
+        return x
 
-        return src
 
+class Transformer(nn.Module):
+    """A transformer model. The architecture is based on the paper: Attention Is All You Need. 
+
+    Parameters
+        d_model (int) - the number of expected features in the encoder/decoder inputs (default=512).
+        nhead (int) - the number of heads in the multiheadattention models (default=8).
+        num_encoder_layers (int) - the number of sub-encoder-layers in the encoder (default=6).
+        num_decoder_layers (int) - the number of sub-decoder-layers in the decoder (default=6).
+        dim_feedforward (int) - the dimension of the feedforward network model (default=2048).
+        dropout (float) - the dropout value (default=0.1).
+
+    Shape
+        (N, T, E)[tgt], (N, S, E)[src] -> (N, T, E)
+
+        where S is the source sequence length, T is the target sequence length, 
+        N is the batch size, E is the feature number
+
+    """
+
+    # torch.nn.Transformer(d_model=512, nhead=8, num_encoder_layers=6, num_decoder_layers=6, dim_feedforward=2048, 
+    #   dropout=0.1, activation=<function relu>, custom_encoder=None, custom_decoder=None, layer_norm_eps=1e-05, 
+    #   batch_first=False, norm_first=False, bias=True, device=None, dtype=None)
+    def __init__(self, d_model=512, nhead=8, num_encoder_layers=6, num_decoder_layers=6, dim_feedforward=2048, dropout=0.1):
+        super().__init__()
+
+        encoder_layer = TransformerEncoderLayer(d_model, nhead, dim_feedforward, dropout)
+        encoder_norm = LayerNorm(d_model)
+        self.encoder = TransformerEncoder(encoder_layer, num_encoder_layers, encoder_norm)
+
+        decoder_layer = TransformerDecoderLayer(d_model, nhead, dim_feedforward, dropout)
+        decoder_norm = LayerNorm(d_model)
+        self.decoder = TransformerDecoder(decoder_layer, num_decoder_layers, decoder_norm)
+        
+    # forward(src, tgt, src_mask=None, tgt_mask=None, memory_mask=None, src_key_padding_mask=None, tgt_key_padding_mask=None, 
+    #   memory_key_padding_mask=None, src_is_causal=None, tgt_is_causal=None, memory_is_causal=False)
+    def forward(self, src, tgt, src_mask=None, tgt_mask=None, memory_mask=None, src_is_causal=False, tgt_is_causal=False, memory_is_causal=False):
+        """Take in and process masked source/target sequences.
+
+        Parameters
+            src (Tensor) - the sequence to the encoder (required).
+            tgt (Tensor) - the sequence to the decoder (required).
+            src_mask (Optional[Tensor]) - the additive mask for the src sequence (optional).
+            tgt_mask (Optional[Tensor]) - the additive mask for the tgt sequence (optional).
+            memory_mask (Optional[Tensor]) - the additive mask for the encoder output (optional).
+            src_is_causal (Optional[bool]) - If specified, applies a causal mask as src_mask.
+            tgt_is_causal (Optional[bool]) - If specified, applies a causal mask as tgt_mask. 
+            memory_is_causal (bool) - If specified, applies a causal mask as memory_mask.
+
+        """
+        memory = self.encoder(
+            src, 
+            mask=src_mask, 
+            is_causal=src_is_causal
+            )
+        
+        output = self.decoder(
+            tgt, 
+            memory, 
+            tgt_mask=tgt_mask,
+            memory_mask=memory_mask,
+            tgt_is_causal=tgt_is_causal,
+            memory_is_causal=memory_is_causal
+            )
+
+        return output
+    
 
 def _get_clones(module, N):
     return nn.ModuleList([copy.deepcopy(module) for _ in range(N)])
