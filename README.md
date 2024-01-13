@@ -25,6 +25,7 @@ The APIs are almost the same as PyTorch, except that some optional parameters ar
 - Transformer Layers
     * TransformerDecoderLayer
     * TransformerDecoder
+    * TransformerEncoderLayer
 - Utilities
     * Flatten
 
