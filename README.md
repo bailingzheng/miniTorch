@@ -34,5 +34,6 @@ The APIs are almost the same as PyTorch, except that some optional parameters ar
 
 [torch.optim](https://pytorch.org/docs/stable/optim.html)
 - Adam
+- AdamW
 - RMSprop
 - SGD
