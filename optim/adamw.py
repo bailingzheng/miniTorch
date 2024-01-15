@@ -1,3 +1,4 @@
+import torch
 from torch.optim import Optimizer
 
 __all__ = [
@@ -10,6 +11,16 @@ class AdamW(Optimizer):
 
     For further details regarding the algorithm we refer to:
     Decoupled Weight Decay Regularization (https://arxiv.org/abs/1711.05101).
+
+    The update can be written as
+        P = P - lr * weight_decay * P
+        M = beta1 * M + (1 - beta1) * G
+        V = beta2 * V + (1 - beta2) * G**2
+        M = M / (1 - beta1**t)
+        V = V / (1 - beta2**t)
+        P = P - lr * M / (V**0.5 + eps)
+
+        where P, G, M, V denote the parameters, gradient, momentum, and velocity respectively.
 
     Parameters
         params (iterable) - iterable of parameters to optimize or dicts defining parameter groups
@@ -28,7 +39,10 @@ class AdamW(Optimizer):
 
     def step(self):
         for group in self.param_groups:
+            lr = group['lr']
             beta1, beta2 = group['betas']
+            eps = group['eps']
+            weight_decay = group['weight_decay']
 
             for p in group['params']:
                 if p.grad is None:
@@ -38,11 +52,12 @@ class AdamW(Optimizer):
                 state = self.state[p]
                 if len(state) == 0:
                     state['step'] = 0
-                    state['M'] = (1 - beta1) * grad
-                    state['V'] = (1 - beta2) * grad**2
+                    state['M'] = torch.zeros_like(grad)
+                    state['V'] = torch.zeros_like(grad)
 
                 if state['step'] > 0:
-                    p.data = (1 - group['lr'] * group['weight_decay']) * p.data
+                    if weight_decay != 0:
+                        p.data = (1 - lr * weight_decay) * p.data
 
                     state['M'] = beta1 * state['M'] + (1 - beta1) * grad
                     state['V'] = beta2 * state['V'] + (1 - beta2) * grad**2
@@ -50,6 +65,6 @@ class AdamW(Optimizer):
                     M = state['M'] / (1 - beta1**state['step'])
                     V = state['V'] / (1 - beta2**state['step'])
 
-                    p.data += -group['lr'] * M / (V**0.5 + group['eps'])
+                    p.data += -lr * M / (V**0.5 + eps)
 
                 state['step'] += 1
