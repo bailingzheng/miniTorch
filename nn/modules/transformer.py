@@ -52,13 +52,13 @@ class TransformerDecoderLayer(nn.Module):
         self.dropout3 = Dropout(dropout)
 
     # self-attention block
-    def _sa_block(self, x, attn_mask, is_causal):
-        x = self.self_attn(x, x, x, attn_mask, is_causal)[0]
+    def _sa_block(self, x, attn_mask):
+        x = self.self_attn(x, x, x, attn_mask)
         return self.dropout1(x)
 
     # multihead attention block
-    def _mha_block(self, x, mem, attn_mask, is_causal):
-        x = self.multihead_attn(x, mem, mem, attn_mask, is_causal)[0]
+    def _mha_block(self, x, mem, attn_mask):
+        x = self.multihead_attn(x, mem, mem, attn_mask)
         return self.dropout2(x)
 
     # feed forward block
@@ -68,7 +68,7 @@ class TransformerDecoderLayer(nn.Module):
 
     # forward(tgt, memory, tgt_mask=None, memory_mask=None, tgt_key_padding_mask=None, 
     #   memory_key_padding_mask=None, tgt_is_causal=False, memory_is_causal=False)
-    def forward(self, tgt, memory, tgt_mask=None, memory_mask=None, tgt_is_causal=False, memory_is_causal=False):
+    def forward(self, tgt, memory, tgt_mask=None, memory_mask=None):
         """Pass the inputs (and mask) through the decoder layer.
 
         Parameters
@@ -77,8 +77,8 @@ class TransformerDecoderLayer(nn.Module):
 
         """
         x = tgt
-        x += self._sa_block(self.norm1(x), tgt_mask, tgt_is_causal)
-        x += self._mha_block(self.norm2(x), memory, memory_mask, memory_is_causal)
+        x += self._sa_block(self.norm1(x), tgt_mask)
+        x += self._mha_block(self.norm2(x), memory, memory_mask)
         x += self._ff_block(self.norm3(x))
 
         return x
@@ -104,7 +104,7 @@ class TransformerDecoder(nn.Module):
 
     # forward(tgt, memory, tgt_mask=None, memory_mask=None, tgt_key_padding_mask=None, 
     #   memory_key_padding_mask=None, tgt_is_causal=None, memory_is_causal=False)
-    def forward(self, tgt, memory, tgt_mask=None, memory_mask=None, tgt_is_causal=None, memory_is_causal=False):
+    def forward(self, tgt, memory, tgt_mask=None, memory_mask=None):
         """Pass the inputs (and mask) through the decoder layer in turn.
 
         Parameters
@@ -113,14 +113,7 @@ class TransformerDecoder(nn.Module):
         
         """
         for layer in self.layers:
-            tgt = layer(
-                tgt, 
-                memory, 
-                tgt_mask=tgt_mask, 
-                memory_mask=memory_mask, 
-                tgt_is_causal=tgt_is_causal, 
-                memory_is_causal=memory_is_causal
-            )
+            tgt = layer(tgt, memory, tgt_mask=tgt_mask, memory_mask=memory_mask)
         
         if self.norm is not None:
             tgt = self.norm(tgt)
@@ -162,8 +155,8 @@ class TransformerEncoderLayer(nn.Module):
         self.dropout2 = Dropout(dropout)
 
     # self-attention block
-    def _sa_block(self, x, attn_mask, is_causal):
-        x = self.self_attn(x, x, x, attn_mask, is_causal)[0]
+    def _sa_block(self, x, attn_mask):
+        x = self.self_attn(x, x, x, attn_mask)
         return self.dropout1(x)
 
     # feed forward block
@@ -171,17 +164,16 @@ class TransformerEncoderLayer(nn.Module):
         x = self.linear2(self.dropout(self.activation(self.linear1(x))))
         return self.dropout2(x)
 
-    def forward(self, src, mask=None, is_causal=False):
+    def forward(self, src, mask=None):
         """Pass the input through the encoder layer.
 
         Parameters
             src (Tensor) - the sequence to the encoder layer (required).
             src_mask (Optional[Tensor]) - the mask for the src sequence (optional).
-            is_causal (bool) - If specified, applies a causal mask as src mask. Default: False. 
 
         """
         x = src
-        x += self._sa_block(self.norm1(x), mask, is_causal)
+        x += self._sa_block(self.norm1(x), mask)
         x += self._ff_block(self.norm2(x))
 
         return x
@@ -208,17 +200,16 @@ class TransformerEncoder(nn.Module):
         self.norm = norm
 
     # forward(src, mask=None, src_key_padding_mask=None, is_causal=None)
-    def forward(self, src, mask=None, is_causal=None):
+    def forward(self, src, mask=None):
         """Pass the input through the encoder layers in turn.
 
         Parameters
             src (Tensor) - the sequence to the encoder (required).
             mask (Optional[Tensor]) - the mask for the src sequence (optional).
-            is_causal (Optional[bool]) - If specified, applies a causal mask as mask.
         """
         x = src
         for layer in self.layers:
-            x = layer(x, mask, is_causal)
+            x = layer(x, mask)
         
         if self.norm is not None:
             x = self.norm(x)
@@ -260,7 +251,7 @@ class Transformer(nn.Module):
         
     # forward(src, tgt, src_mask=None, tgt_mask=None, memory_mask=None, src_key_padding_mask=None, tgt_key_padding_mask=None, 
     #   memory_key_padding_mask=None, src_is_causal=None, tgt_is_causal=None, memory_is_causal=False)
-    def forward(self, src, tgt, src_mask=None, tgt_mask=None, memory_mask=None, src_is_causal=False, tgt_is_causal=False, memory_is_causal=False):
+    def forward(self, src, tgt, src_mask=None, tgt_mask=None, memory_mask=None):
         """Take in and process masked source/target sequences.
 
         Parameters
@@ -269,25 +260,10 @@ class Transformer(nn.Module):
             src_mask (Optional[Tensor]) - the additive mask for the src sequence (optional).
             tgt_mask (Optional[Tensor]) - the additive mask for the tgt sequence (optional).
             memory_mask (Optional[Tensor]) - the additive mask for the encoder output (optional).
-            src_is_causal (Optional[bool]) - If specified, applies a causal mask as src_mask.
-            tgt_is_causal (Optional[bool]) - If specified, applies a causal mask as tgt_mask. 
-            memory_is_causal (bool) - If specified, applies a causal mask as memory_mask.
 
         """
-        memory = self.encoder(
-            src, 
-            mask=src_mask, 
-            is_causal=src_is_causal
-            )
-        
-        output = self.decoder(
-            tgt, 
-            memory, 
-            tgt_mask=tgt_mask,
-            memory_mask=memory_mask,
-            tgt_is_causal=tgt_is_causal,
-            memory_is_causal=memory_is_causal
-            )
+        memory = self.encoder(src, mask=src_mask)
+        output = self.decoder(tgt, memory, tgt_mask=tgt_mask, memory_mask=memory_mask)
 
         return output
     
