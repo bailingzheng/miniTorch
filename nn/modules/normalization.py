@@ -29,9 +29,10 @@ class LayerNorm(nn.Module):
 
     def forward(self, x):
         dim = -1 if isinstance(self.normalized_shape, int) else list(range(-len(self.normalized_shape), 0))
-        xmean = x.mean(dim, keepdim=True)
-        # The variance is calculated via the biased estimator
-        xvar = x.var(dim, correction=0, keepdim=True)
+        with torch.no_grad():
+            xmean = x.mean(dim, keepdim=True)
+            # The variance is calculated via the biased estimator
+            xvar = x.var(dim, correction=0, keepdim=True)
         y = self.gamma * (x - xmean) / (xvar + self.eps)**0.5 + self.beta
         
         # normalized_shape = (self.normalized_shape, ) if isinstance(self.normalized_shape, int) else self.normalized_shape
