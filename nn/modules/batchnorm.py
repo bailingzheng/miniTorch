@@ -49,9 +49,9 @@ class BatchNorm1d(nn.Module):
             xmean = x.mean(dim)
             xvar = x.var(dim, correction=0)
             y = self.gamma * (x - xmean) / (xvar + self.eps)**0.5 + self.beta
-           
-            self.running_mean = (1 - self.momentum) * self.running_mean + self.momentum * xmean
-            self.running_var = (1 - self.momentum) * self.running_var + self.momentum * xvar
+            with torch.no_grad():
+                self.running_mean = (1 - self.momentum) * self.running_mean + self.momentum * xmean
+                self.running_var = (1 - self.momentum) * self.running_var + self.momentum * xvar
         else:
             y = self.gamma * (x - self.running_mean) / (self.running_var + self.eps)**0.5 + self.beta
 
