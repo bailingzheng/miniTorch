@@ -32,8 +32,12 @@ The APIs are almost the same as PyTorch, except that some optional parameters ar
     * Flatten
 
 
-[torch.optim](https://pytorch.org/docs/stable/optim.html)
+[torch.optim](https://pytorch.org/docs/stable/optim.html):
 - Adam
 - AdamW
 - RMSprop
 - SGD
+
+Examples:
+- [Language Models](https://github.com/karpathy/makemore):
+    * Bigram
