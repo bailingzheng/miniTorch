@@ -42,3 +42,4 @@ Examples:
 - Language Models:
     * Bigram
     * MLP
+    * Transformer
