@@ -4,10 +4,8 @@ import time
 import torch
 from torch.utils.data import DataLoader
 
-from examples.language_model.data import CharDataset
-from examples.language_model.data import InfiniteDataLoader
-from examples.language_model.model import MLP, ModelConfig
-from examples.language_model.model import Bigram
+from examples.language_model.data import CharDataset, InfiniteDataLoader
+from examples.language_model.model import ModelConfig, Bigram, MLP, Transformer
 from optim import AdamW
 
 
@@ -55,6 +53,21 @@ def evaluate(model, dataset, batch_size=50, max_batches=None):
     return mean_loss
 
 
+def print_samples(num=10):
+    """ samples from the model and pretty prints the decoded samples """
+    X_init = torch.zeros(num, 1, dtype=torch.long)
+    X_samp = model.generate(X_init, do_sample=True)
+    print('-'*80)
+    for i in range(X_samp.size(0)):
+        row = X_samp[i, 1:].tolist() # note: we need to crop out the first <START> token
+        # token 0 is the <STOP> token, so we crop the output sequence at that point
+        crop_index = row.index(0) if 0 in row else len(row)
+        row = row[:crop_index]
+        word_samp = train_dataset.decode(row)
+        print(word_samp)
+    print('-'*80)
+
+
 if __name__ == "__main__":
 
     # parse command line args
@@ -73,19 +86,13 @@ if __name__ == "__main__":
         default=4, 
         help="number of data workers for both train/test"
     )
-    parser.add_argument(
-        "--max-steps", 
-        type=int, 
-        default=1000, 
-        help="max number of optimization steps to run for, or -1 for infinite."
-    )
 
     # model
     parser.add_argument(
         "--type", 
         type=str, 
-        default="bigram", 
-        help="model class type to use, bigram | mlp"
+        default="transformer", 
+        help="model class type to use, bigram | mlp | transformer"
     )
     parser.add_argument(
         "--num-layers", 
@@ -119,31 +126,36 @@ if __name__ == "__main__":
         default=5e-3, 
         help="learning rate"
     )
+    parser.add_argument(
+        "--max-steps", 
+        type=int, 
+        default=1000, 
+        help="max number of optimization steps to run for, or -1 for infinite."
+    )
     
     args = parser.parse_args()
     torch.manual_seed(3407)
 
     train_dataset, test_dataset = create_datasets(args.input_file)
-
-    V = train_dataset.get_vocab_size()
-    S = train_dataset.get_block_size()
-    print(f"dataset determined that: {V=}, {S=}")
+    vocab_size = train_dataset.get_vocab_size()
+    block_size = train_dataset.get_block_size()
+    print(f"{vocab_size=} | {block_size=}")
 
     # init model
     config = ModelConfig(
-        V=V, 
-        S=S,
+        V=vocab_size, 
+        S=block_size,
         E=args.d_model,
-
         num_layers=args.num_layers, 
-        nhead=args.nhead,
-        dim_feedforward=64
+        nhead=args.nhead
     )
 
     if args.type == "bigram":
         model = Bigram(config)
     elif args.type == "mlp":
         model = MLP(config)
+    elif args.type == "transformer":
+        model = Transformer(config)
     else:
         raise ValueError(f"model type {args.type} is not recognized.")
 
@@ -200,3 +212,5 @@ if __name__ == "__main__":
         # termination conditions
         if args.max_steps >= 0 and step >= args.max_steps:
             break
+    
+    print_samples(num=10)
