@@ -39,5 +39,6 @@ The APIs are almost the same as PyTorch, except that some optional parameters ar
 - SGD
 
 Examples:
-- [Language Models](https://github.com/karpathy/makemore):
+- Language Models:
     * Bigram
+    * MLP

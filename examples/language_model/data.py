@@ -23,7 +23,7 @@ class CharDataset(Dataset):
     def get_vocab_size(self):
         return len(self.chars) + 1
 
-    def get_output_length(self):
+    def get_block_size(self):
         return self.max_word_length + 1
 
     def encode(self, word):

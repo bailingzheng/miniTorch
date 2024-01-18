@@ -6,7 +6,7 @@ from torch.utils.data import DataLoader
 
 from examples.language_model.data import CharDataset
 from examples.language_model.data import InfiniteDataLoader
-from examples.language_model.model import ModelConfig
+from examples.language_model.model import MLP, ModelConfig
 from examples.language_model.model import Bigram
 from optim import AdamW
 
@@ -24,10 +24,10 @@ def create_datasets(input_file):
     max_word_length = max(len(w) for w in words)
 
     # partition the input data into a training and the test set
-    test_set_size = min(1000, int(len(words) * 0.1)) # 10% of the training set, or up to 1000 examples
+    M = min(1000, int(len(words) * 0.1)) # 10% of the training set, or up to 1000 examples
     rp = torch.randperm(len(words)).tolist()
-    train_words = [words[i] for i in rp[:-test_set_size]]
-    test_words = [words[i] for i in rp[-test_set_size:]]
+    train_words = [words[i] for i in rp[:-M]]
+    test_words = [words[i] for i in rp[-M:]]
     print(f"split up the dataset into {len(train_words)} training examples and {len(test_words)} test examples")
 
     # wrap in dataset objects
@@ -45,7 +45,7 @@ def evaluate(model, dataset, batch_size=50, max_batches=None):
     losses = []
     for i, batch in enumerate(loader):
         X, Y = [t for t in batch]
-        logits, loss = model(X, Y)
+        _, loss = model(X, Y)
         losses.append(loss.item())
         if max_batches is not None and i >= max_batches:
             break
@@ -79,37 +79,31 @@ if __name__ == "__main__":
         default=1000, 
         help="max number of optimization steps to run for, or -1 for infinite."
     )
-    parser.add_argument(
-        "--seed", 
-        type=int, 
-        default=3407, 
-        help="random seed"
-    )
 
     # model
     parser.add_argument(
         "--type", 
         type=str, 
         default="bigram", 
-        help="model class type to use, bigram"
+        help="model class type to use, bigram | mlp"
     )
     parser.add_argument(
-        "--n-layer", 
+        "--num-layers", 
         type=int, 
         default=4, 
-        help="number of layers"
+        help="number of hidden layers"
     )
     parser.add_argument(
-        "--n-head", 
+        "--nhead", 
         type=int, 
         default=4, 
-        help="number of heads (in a transformer)"
+        help="number of heads in the multihead attention models"
     )
     parser.add_argument(
-        "--n-embd", 
+        "--d-model", 
         type=int, 
         default=64, 
-        help="number of feature channels in the model"
+        help="number of expected features in the input"
     )
     
     # optimization
@@ -120,53 +114,43 @@ if __name__ == "__main__":
         help="batch size during optimization"
     )
     parser.add_argument(
-        "--learning-rate", 
+        "--lr", 
         type=float, 
         default=5e-3, 
         help="learning rate"
     )
-    parser.add_argument(
-        "--weight-decay", 
-        type=float, 
-        default=0.01, 
-        help="weight decay"
-    )
     
     args = parser.parse_args()
+    torch.manual_seed(3407)
 
-    # system inits
-    torch.manual_seed(args.seed)
-
-    # init datasets
     train_dataset, test_dataset = create_datasets(args.input_file)
-    vocab_size = train_dataset.get_vocab_size()
-    block_size = train_dataset.get_output_length()
-    print(f"dataset determined that: {vocab_size=}, {block_size=}")
+
+    V = train_dataset.get_vocab_size()
+    S = train_dataset.get_block_size()
+    print(f"dataset determined that: {V=}, {S=}")
 
     # init model
     config = ModelConfig(
-        vocab_size=vocab_size, 
-        block_size=block_size,
-        n_layer=args.n_layer, 
-        n_head=args.n_head,
-        n_embd=args.n_embd
+        V=V, 
+        S=S,
+        E=args.d_model,
+
+        num_layers=args.num_layers, 
+        nhead=args.nhead,
+        dim_feedforward=64
     )
 
     if args.type == "bigram":
         model = Bigram(config)
+    elif args.type == "mlp":
+        model = MLP(config)
     else:
         raise ValueError(f"model type {args.type} is not recognized.")
 
     print(f"model #params: {sum(p.numel() for p in model.parameters())}")
 
     # init optimizer
-    optimizer = AdamW(
-        model.parameters(), 
-        lr=args.learning_rate, 
-        betas=(0.9, 0.99), 
-        eps=1e-8, 
-        weight_decay=args.weight_decay
-    )
+    optimizer = AdamW(model.parameters(), lr=args.lr)
 
     # init dataloader
     batch_loader = InfiniteDataLoader(
@@ -184,7 +168,7 @@ if __name__ == "__main__":
         t0 = time.time()
 
         X, Y = batch_loader.next()
-        logits, loss = model(X, Y)
+        _, loss = model(X, Y)
 
         model.zero_grad()
         loss.backward()
