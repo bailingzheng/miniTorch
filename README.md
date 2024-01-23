@@ -1,7 +1,7 @@
 # miniTorch
 
 Inspired by [Andrej Karpathy's course](https://karpathy.ai/zero-to-hero.html).  
-I'm trying to implement a much simplified version of torch.nn and torch.optim.  
+I'm trying to implement a much simplified version of torch.nn, torch.optim, and torchvision.models.  
 The APIs are almost the same as PyTorch, except that some optional parameters are not supported.
 
 [torch.nn](https://pytorch.org/docs/stable/nn.html): 
@@ -31,15 +31,12 @@ The APIs are almost the same as PyTorch, except that some optional parameters ar
 - Utilities
     * Flatten
 
-
 [torch.optim](https://pytorch.org/docs/stable/optim.html):
 - Adam
 - AdamW
 - RMSprop
 - SGD
 
-Examples:
-- Language Models:
-    * Bigram
-    * MLP
-    * Transformer
+[torchvision.models](https://pytorch.org/vision/stable/models.html)
+- Classification
+    * ResNet
