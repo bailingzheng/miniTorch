@@ -40,3 +40,4 @@ The APIs are almost the same as PyTorch, except that some optional parameters ar
 [torchvision.models](https://pytorch.org/vision/stable/models.html)
 - Classification
     * ResNet
+    * MobileNetV2
