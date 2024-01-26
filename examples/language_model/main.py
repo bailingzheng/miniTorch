@@ -5,7 +5,7 @@ import torch
 from torch.utils.data import DataLoader
 
 from examples.language_model.data import CharDataset, InfiniteDataLoader
-from examples.language_model.model import ModelConfig, Bigram, MLP, Transformer
+from models import ModelConfig, Bigram, MLP, Transformer
 from optim import AdamW
 
 

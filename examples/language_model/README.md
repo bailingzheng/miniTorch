@@ -4,11 +4,6 @@ It takes one text file as input, where each line is assumed to be one training t
 
 Note the code is taken from [makemore](https://github.com/karpathy/makemore).
 
-Changes from makemore:
-- split makemore into several files
-- use miniTorch instead of PyTorch
-
-
 ## Usage
 
 The included names.txt dataset, as an example, has the most common 32K names takes from [ssa.gov](https://www.ssa.gov/oact/babynames/) for the year 2018. 
