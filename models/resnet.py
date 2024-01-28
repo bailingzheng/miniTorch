@@ -24,7 +24,7 @@ class Block(tnn.Module):
 
     def __init__(self, in_planes, planes, stride=1, downsample=None):
         super().__init__()
-        print(f"{in_planes=}, {planes=}")
+
         self.conv1 = conv3x3(in_planes, planes, stride=stride)
         self.bn1 = tnn.BatchNorm2d(planes)
 
