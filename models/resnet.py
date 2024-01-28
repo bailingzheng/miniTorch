@@ -24,6 +24,7 @@ class Block(tnn.Module):
 
     def __init__(self, in_planes, planes, stride=1, downsample=None):
         super().__init__()
+        print(f"{in_planes=}, {planes=}")
         self.conv1 = conv3x3(in_planes, planes, stride=stride)
         self.bn1 = tnn.BatchNorm2d(planes)
 
@@ -59,37 +60,35 @@ class ResNet(tnn.Module):
 
     def __init__(self, blocks, num_classes=1000):
         super().__init__()
-        self.in_planes = 64
 
-        self.conv1 = Conv2d(3, 64, kernel_size=7, stride=2, padding=3, bias=False)
+        self.conv1 = Conv2d(1, 64, kernel_size=7, stride=2, padding=3, bias=False)
         self.bn1 = tnn.BatchNorm2d(64)
         self.relu = ReLU() # inplace=True
         self.maxpool = MaxPool2d(kernel_size=3, stride=2, padding=1)
 
-        self.conv2_x = self._make_layer(64, blocks[0])
-        self.conv3_x = self._make_layer(128, blocks[1], stride=2)
-        self.conv4_x = self._make_layer(256, blocks[2], stride=2)
-        self.conv5_x = self._make_layer(512, blocks[3], stride=2)
+        self.conv2_x = self._make_layer(64, 64, blocks[0])
+        self.conv3_x = self._make_layer(64, 128, blocks[1], stride=2)
+        self.conv4_x = self._make_layer(128, 256, blocks[2], stride=2)
+        self.conv5_x = self._make_layer(256, 512, blocks[3], stride=2)
 
         self.avgpool = tnn.AdaptiveAvgPool2d((1, 1))
         self.flatten = Flatten()
         self.fc = Linear(512, num_classes)
 
-    def _make_layer(self, planes, blocks, stride=1):
+    def _make_layer(self, in_planes, planes, blocks, stride=1):
         downsample = None
 
-        if stride != 1 or self.in_planes != planes:
+        if stride != 1 or in_planes != planes:
             downsample = tnn.Sequential(
-                conv1x1(self.in_planes, planes, stride=stride),
+                conv1x1(in_planes, planes, stride=stride),
                 tnn.BatchNorm2d(planes)
             )
             
         layers = []
-        layers.append(Block(self.in_planes, planes, stride=stride, downsample=downsample))
+        layers.append(Block(in_planes, planes, stride=stride, downsample=downsample))
 
-        self.in_planes = planes
         for _ in range(1, blocks):
-            layers.append(Block(self.in_planes, planes))
+            layers.append(Block(planes, planes))
 
         return tnn.Sequential(*layers)
 
@@ -105,6 +104,5 @@ class ResNet(tnn.Module):
 
         x = self.avgpool(x)
         x = self.fc(self.flatten(x))
-        # x = F.log_softmax(x, dim=1)
 
         return x
