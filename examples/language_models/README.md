@@ -11,5 +11,5 @@ The included names.txt dataset, as an example, has the most common 32K names tak
 Run the script from the project root directory:
 
 ```bash
-$ PYTHONPATH=. python examples/language_model/main.py
+$ PYTHONPATH=. python examples/language_models/main.py
 ```

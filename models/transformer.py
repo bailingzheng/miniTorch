@@ -1,33 +1,36 @@
 import torch
-import torch.nn.functional as F
+import torch.nn as tnn
 
 from nn import Embedding, TransformerEncoderLayer, TransformerEncoder, LayerNorm, Linear
-from .lm import LanguageModel
 
 __all__ = [
     'Transformer'
 ]
 
-class Transformer(LanguageModel):
+class Transformer(tnn.Module):
     """Transformer Language Model, exactly as seen in GPT-2
 
     Shape
         (N, S) -> (N, S, V)
-    
+        where N is the batch size, S is the block size, and V is the vocabulary size.
     """
 
-    def __init__(self, config):
+    def __init__(self, vocab_size, block_size, num_features):
         super().__init__()
-        self.S = config.S
-        self.wte = Embedding(config.V, config.E)
-        self.wpe = Embedding(config.S, config.E)
+        nhead = 4
+        dim_feedforward = num_features * 4
+        num_layers = 4
 
-        encoder_layer = TransformerEncoderLayer(config.E, config.nhead, dim_feedforward=config.dim_feedforward, dropout=0.0)
-        self.encoder = TransformerEncoder(encoder_layer, config.num_layers)
-        self.ln = LayerNorm(config.E)
-        self.lm_head = Linear(config.E, config.V)
+        self.block_size = block_size
+        self.wte = Embedding(vocab_size, num_features)
+        self.wpe = Embedding(block_size, num_features)
 
-    def forward(self, idx, target=None):
+        encoder_layer = TransformerEncoderLayer(num_features, nhead, dim_feedforward=dim_feedforward, dropout=0.0)
+        self.encoder = TransformerEncoder(encoder_layer, num_layers)
+        self.ln = LayerNorm(num_features)
+        self.lm_head = Linear(num_features, vocab_size)
+
+    def forward(self, idx):
         _, S = idx.shape
         attn_mask = torch.triu(torch.full((S, S), float('-inf')), diagonal=1)
 
@@ -35,9 +38,4 @@ class Transformer(LanguageModel):
         pos_emb = self.wpe(torch.arange(S, dtype=torch.long)).unsqueeze(0) # (1, S, E)
         x = tok_emb + pos_emb
         y = self.lm_head(self.ln(self.encoder(x, mask=attn_mask)))
-
-        loss = None
-        if target is not None:
-            loss = F.cross_entropy(y.view(-1, y.size(-1)), target.view(-1), ignore_index=-1)
-        
-        return y, loss
+        return y

@@ -2,10 +2,11 @@ import argparse
 import time
 
 import torch
+import torch.nn.functional as F
 from torch.utils.data import DataLoader
 
-from examples.language_model.data import CharDataset, InfiniteDataLoader
-from models import ModelConfig, Bigram, MLP, Transformer
+from examples.language_models.data import CharDataset, InfiniteDataLoader
+from models import Bigram, MLP, Transformer
 from optim import AdamW
 
 
@@ -42,8 +43,10 @@ def evaluate(model, dataset, batch_size=50, max_batches=None):
     loader = DataLoader(dataset, shuffle=True, batch_size=batch_size, num_workers=0)
     losses = []
     for i, batch in enumerate(loader):
-        X, Y = [t for t in batch]
-        _, loss = model(X, Y)
+        x, y = [t for t in batch]
+        y_pred = model(x)
+
+        loss = F.cross_entropy(y_pred.view(-1, y_pred.size(-1)), y.view(-1), ignore_index=-1)
         losses.append(loss.item())
         if max_batches is not None and i >= max_batches:
             break
@@ -53,18 +56,49 @@ def evaluate(model, dataset, batch_size=50, max_batches=None):
     return mean_loss
 
 
+def generate(model, idx, temperature=1.0, do_sample=False, top_k=None):
+    """Take a conditioning sequence of indices idx (LongTensor of shape (N, S)) and complete
+    the sequence max_new_tokens times, feeding the predictions back into the model each time.
+
+    """
+    for _ in range(model.block_size):
+
+        logits = model.forward(idx)
+        # pluck the logits at the final step and scale by desired temperature
+        logits = logits[:, -1, :] / temperature
+        # optionally crop the logits to only the top k options
+        if top_k is not None:
+            v, _ = torch.topk(logits, top_k)
+            logits[logits < v[:, [-1]]] = -float('Inf')
+        
+        probs = F.softmax(logits, dim=-1)
+        if do_sample:
+            idx_next = torch.multinomial(probs, num_samples=1)
+        else:
+            _, idx_next = torch.topk(probs, k=1, dim=-1)
+
+        idx = torch.cat((idx, idx_next), dim=1)
+
+    return idx
+
+
 def print_samples(num=10):
     """ samples from the model and pretty prints the decoded samples """
+
     X_init = torch.zeros(num, 1, dtype=torch.long)
-    X_samp = model.generate(X_init, do_sample=True)
+    X_samp = generate(model, X_init, do_sample=True)
+
     print('-'*80)
+
     for i in range(X_samp.size(0)):
         row = X_samp[i, 1:].tolist() # note: we need to crop out the first <START> token
+
         # token 0 is the <STOP> token, so we crop the output sequence at that point
         crop_index = row.index(0) if 0 in row else len(row)
         row = row[:crop_index]
         word_samp = train_dataset.decode(row)
         print(word_samp)
+    
     print('-'*80)
 
 
@@ -77,7 +111,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--input-file", 
         type=str, 
-        default="examples/language_model/names.txt", 
+        default="examples/language_models/names.txt", 
         help="input file with things one per line"
     )
     parser.add_argument(
@@ -107,7 +141,7 @@ if __name__ == "__main__":
         help="number of heads in the multihead attention models"
     )
     parser.add_argument(
-        "--d-model", 
+        "--num-features", 
         type=int, 
         default=64, 
         help="number of expected features in the input"
@@ -141,21 +175,12 @@ if __name__ == "__main__":
     block_size = train_dataset.get_block_size()
     print(f"{vocab_size=} | {block_size=}")
 
-    # init model
-    config = ModelConfig(
-        V=vocab_size, 
-        S=block_size,
-        E=args.d_model,
-        num_layers=args.num_layers, 
-        nhead=args.nhead
-    )
-
     if args.type == "bigram":
-        model = Bigram(config)
+        model = Bigram(vocab_size, block_size)
     elif args.type == "mlp":
-        model = MLP(config)
+        model = MLP(vocab_size, block_size, args.num_features)
     elif args.type == "transformer":
-        model = Transformer(config)
+        model = Transformer(vocab_size, block_size, args.num_features)
     else:
         raise ValueError(f"model type {args.type} is not recognized.")
 
@@ -179,8 +204,9 @@ if __name__ == "__main__":
 
         t0 = time.time()
 
-        X, Y = batch_loader.next()
-        _, loss = model(X, Y)
+        x, y = batch_loader.next()
+        y_pred = model(x)
+        loss = F.cross_entropy(y_pred.view(-1, y_pred.size(-1)), y.view(-1), ignore_index=-1)
 
         model.zero_grad()
         loss.backward()

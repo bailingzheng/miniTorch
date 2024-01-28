@@ -1,12 +1,13 @@
 import torch
 import torch.nn as tnn
-import torch.nn.functional as F
 
 from nn import Embedding, Linear, ReLU
-from .lm import LanguageModel
 
+__all__ = [
+    'MLP'
+]
 
-class MLP(LanguageModel):
+class MLP(tnn.Module):
     """takes the previous block_size tokens, encodes them with a lookup table,
     concatenates the vectors and predicts the next token with an MLP.
 
@@ -15,36 +16,33 @@ class MLP(LanguageModel):
 
     Shape
         (N, S) -> (N, S, V)
-
+        where N is the batch size, S is the block size, and V is the vocabulary size.
     """
 
-    def __init__(self, config):
+    def __init__(self, vocab_size, block_size, num_features):
         super().__init__()
-        self.S = config.S
-        self.V = config.V
-        self.wte = Embedding(config.V + 1, config.E)
-
+        dim_feedforward = num_features * 4
+         
+        self.vocab_size = vocab_size
+        self.block_size = block_size
+        
+        self.wte = Embedding(vocab_size + 1, num_features)
         self.mlp = tnn.Sequential(
-            Linear(config.E * config.S, config.dim_feedforward),
+            Linear(num_features * block_size, dim_feedforward),
             ReLU(),
-            Linear(config.dim_feedforward, config.V)
+            Linear(dim_feedforward, vocab_size)
         )
 
-    def forward(self, idx, target=None):
+    def forward(self, idx):
         embs = []
 
-        for _ in range(self.S):
+        for _ in range(self.block_size):
             emb = self.wte(idx) # (N, S, E)
             embs.append(emb)
 
             idx = torch.roll(idx, 1, 1)
-            idx[:, 0] = self.V
+            idx[:, 0] = self.vocab_size
 
         x = torch.concat(embs, -1) # (N, S, E * S)
         y  = self.mlp(x) # (N, S, V)
-
-        loss = None
-        if target is not None:
-            loss = F.cross_entropy(y.view(-1, y.size(-1)), target.view(-1), ignore_index=-1)
-        
-        return y, loss
+        return y
