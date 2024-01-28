@@ -41,6 +41,8 @@ The APIs are almost the same as PyTorch, except that some optional parameters ar
 - Classification
     * ResNet
     * MobileNetV2
+- Object Detection
+    * YOLOv1
 
 ## Language Models
 - Bigram
