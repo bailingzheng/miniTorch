@@ -105,7 +105,7 @@ def print_samples(num=10):
 if __name__ == "__main__":
 
     # parse command line args
-    parser = argparse.ArgumentParser(description="Language Model")
+    parser = argparse.ArgumentParser(description="Language Models")
 
     # system
     parser.add_argument(
@@ -184,7 +184,7 @@ if __name__ == "__main__":
     else:
         raise ValueError(f"model type {args.type} is not recognized.")
 
-    print(f"model #params: {sum(p.numel() for p in model.parameters())}")
+    print(f"model #params: {sum(p.numel() for p in model.parameters()) / 1e6} M")
 
     # init optimizer
     optimizer = AdamW(model.parameters(), lr=args.lr)
