@@ -2,7 +2,7 @@
 
 It takes one text file as input, where each line is assumed to be one training thing, and generates more things like it. Under the hood, it is an autoregressive character-level language model.
 
-Note the code is taken from [makemore](https://github.com/karpathy/makemore).
+Note the code is based on [makemore](https://github.com/karpathy/makemore).
 
 ## Usage
 
