@@ -1,6 +1,6 @@
 # Basic MNIST Example
 
-Note the code is taken from [PyTorch Examples](https://github.com/pytorch/examples).
+Note the code is based on [PyTorch Examples](https://github.com/pytorch/examples).
 
 ## Usage
 

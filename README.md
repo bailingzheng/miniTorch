@@ -43,6 +43,8 @@ The APIs are almost the same as PyTorch, except that some optional parameters ar
     * MobileNetV2
 - Object Detection
     * YOLOv1
+- Semantic Segmentation
+    * UNet
 
 ## Language Models
 - Bigram
