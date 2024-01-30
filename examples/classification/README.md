@@ -7,5 +7,5 @@ Note the code is based on [PyTorch Examples](https://github.com/pytorch/examples
 Run the script from the project root directory:
 
 ```bash
-$ PYTHONPATH=. python examples/classification_models/main.py
+$ PYTHONPATH=. python examples/classification/main.py
 ```

@@ -1,11 +1,11 @@
 import torch.nn as tnn
 import torch.nn.functional as F
 
+from nn import BatchNorm2d, Flatten, Linear
 
 __all__ = [
     'MobileNetV2'
 ]
-
 
 class Bottleneck(tnn.Module):
     """Bottleneck residual block"""
@@ -20,18 +20,18 @@ class Bottleneck(tnn.Module):
             layers.extend([
                 # conv1x1, relu6
                 tnn.Conv2d(in_planes, hidden_dim, kernel_size=1, bias=False),
-                tnn.BatchNorm2d(hidden_dim),
+                BatchNorm2d(hidden_dim),
                 tnn.ReLU6()
             ])
 
         layers.extend([
             # dwise conv3x3, relu6
             tnn.Conv2d(hidden_dim, hidden_dim, kernel_size=3, stride=stride, padding=1, groups=hidden_dim, bias=False),
-            tnn.BatchNorm2d(hidden_dim),
+            BatchNorm2d(hidden_dim),
             tnn.ReLU6(),
             # conv1x1, linear
             tnn.Conv2d(hidden_dim, planes, kernel_size=1, bias=False),
-            tnn.BatchNorm2d(planes)
+            BatchNorm2d(planes)
         ])
 
         self.shortcut = (stride == 1 and in_planes == planes)
@@ -71,7 +71,7 @@ class MobileNetV2(tnn.Module):
         # conv3x3
         layers.extend([
             tnn.Conv2d(in_planes, planes, kernel_size=3, stride=2, padding=1, bias=False),
-            tnn.BatchNorm2d(planes),
+            BatchNorm2d(planes),
             tnn.ReLU6()
         ])
 
@@ -88,12 +88,12 @@ class MobileNetV2(tnn.Module):
         layers.extend([
             # conv1x1
             tnn.Conv2d(in_planes, planes, kernel_size=1, stride=1, bias=False),
-            tnn.BatchNorm2d(planes),
+            BatchNorm2d(planes),
             tnn.ReLU6(),
             # avgpool
             tnn.AdaptiveAvgPool2d((1, 1)),
-            tnn.Flatten(),
-            tnn.Linear(planes, num_classes)
+            Flatten(),
+            Linear(planes, num_classes)
         ])
 
         self.net = tnn.Sequential(*layers)

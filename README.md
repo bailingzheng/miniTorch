@@ -1,7 +1,7 @@
 # miniTorch
 
 Inspired by [Andrej Karpathy's course](https://karpathy.ai/zero-to-hero.html).  
-I'm trying to implement a much simplified version of torch.nn, torch.optim.  
+I'm trying to implement a much simplified version of torch.nn, and torch.optim.  
 The APIs are almost the same as PyTorch, except that some optional parameters are not supported.
 
 ## Neural Network
@@ -13,6 +13,7 @@ The APIs are almost the same as PyTorch, except that some optional parameters ar
     * Linear
 - Normalization Layers
     * BatchNorm1d
+    * BatchNorm2d
     * LayerNorm
 - Non-linear Activations
     * MultiheadAttention

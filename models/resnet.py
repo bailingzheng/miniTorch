@@ -1,8 +1,7 @@
 import torch.nn as tnn
 import torch.nn.functional as F
 
-from nn import Conv2d, ReLU, MaxPool2d, Linear, Flatten
-
+from nn import BatchNorm2d, Conv2d, Flatten, Linear, MaxPool2d, ReLU
 
 __all__ = [
     'ResNet'
@@ -26,10 +25,10 @@ class Block(tnn.Module):
         super().__init__()
 
         self.conv1 = conv3x3(in_planes, planes, stride=stride)
-        self.bn1 = tnn.BatchNorm2d(planes)
+        self.bn1 = BatchNorm2d(planes)
 
         self.conv2 = conv3x3(planes, planes)
-        self.bn2 = tnn.BatchNorm2d(planes)
+        self.bn2 = BatchNorm2d(planes)
 
         self.relu = ReLU() # inplace=True
         self.downsample = downsample
@@ -62,7 +61,7 @@ class ResNet(tnn.Module):
         super().__init__()
 
         self.conv1 = Conv2d(1, 64, kernel_size=7, stride=2, padding=3, bias=False)
-        self.bn1 = tnn.BatchNorm2d(64)
+        self.bn1 = BatchNorm2d(64)
         self.relu = ReLU() # inplace=True
         self.maxpool = MaxPool2d(kernel_size=3, stride=2, padding=1)
 
@@ -81,7 +80,7 @@ class ResNet(tnn.Module):
         if stride != 1 or in_planes != planes:
             downsample = tnn.Sequential(
                 conv1x1(in_planes, planes, stride=stride),
-                tnn.BatchNorm2d(planes)
+                BatchNorm2d(planes)
             )
             
         layers = []
@@ -94,7 +93,9 @@ class ResNet(tnn.Module):
 
     def forward(self, x):
 
-        x = self.relu(self.bn1(self.conv1(x)))
+        x = self.conv1(x)
+        x = self.bn1(x)
+        x = self.relu(x)
         x = self.maxpool(x)
 
         x = self.conv2_x(x)
@@ -103,6 +104,7 @@ class ResNet(tnn.Module):
         x = self.conv5_x(x)
 
         x = self.avgpool(x)
-        x = self.fc(self.flatten(x))
+        x = self.flatten(x)
+        x = self.fc(x)
 
         return x

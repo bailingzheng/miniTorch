@@ -1,6 +1,6 @@
 import torch.nn as tnn
 
-from nn import Conv2d, MaxPool2d, Linear, Flatten
+from nn import BatchNorm2d, Conv2d, Flatten, Linear, MaxPool2d
 
 __all__ = [
     'DarkNetV1'
@@ -18,7 +18,7 @@ class ConvLayer(tnn.Module):
         layers = []
         layers.append(Conv2d(in_planes, planes, kernel_size=kernel_size, stride=stride, padding=padding, bias=bias))
         if normalization:
-            layers.append(tnn.BatchNorm2d(planes))
+            layers.append(BatchNorm2d(planes))
         if activation == "leaky":
             layers.append(tnn.LeakyReLU(0.1, inplace=True))
         
