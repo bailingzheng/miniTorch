@@ -7,10 +7,45 @@ from .. import functional
 
 
 __all__ = [
+    'Hardtanh',
+    'LeakyReLU',
     'MultiheadAttention',
     'ReLU',
+    'ReLU6',
     'Tanh'
 ]
+
+
+class Hardtanh(nn.Module):
+    """Applies the HardTanh function element-wise.
+
+    Hardtanh(x) = min(max(min_val, x), max_val)
+    """
+
+    def __init__(self, min_val=-1., max_val=1., inplace=False):
+        super().__init__()
+        self.min_val = min_val
+        self.max_val = max_val
+        self.inplace = inplace
+        assert self.max_val > self.min_val
+
+    def forward(self, x):
+        return F.hardtanh(x, self.min_val, self.max_val, self.inplace)
+
+
+class LeakyReLU(nn.Module):
+    """Applies the element-wise function:
+
+    LeakyReLU(x) = x if x >= 0; negative_slope * x otherwise.
+    """
+
+    def __init__(self, negative_slope=1e-2, inplace=False):
+        super().__init__()
+        self.negative_slope = negative_slope
+        self.inplace = inplace
+
+    def forward(self, x):
+        return F.leaky_relu(x, self.negative_slope, self.inplace)
 
 
 class MultiheadAttention(nn.Module):
@@ -82,6 +117,31 @@ class MultiheadAttention(nn.Module):
         y = self.W_out(y)
         return y
 
+    
+class ReLU(nn.Module):
+    """Applies the rectified linear unit function element-wise.
+
+    ReLU(x) = max(0, x)
+    """
+
+    # torch.nn.ReLU(inplace=False)
+    def __init__(self, inplace=False):
+        super().__init__()
+        self.inplace = inplace
+
+    def forward(self, x):
+        return F.relu(x, inplace=self.inplace)
+
+
+class ReLU6(Hardtanh):
+    """Applies the element-wise function:
+
+    ReLU6(x) = min(max(0, x), 6.)
+    """
+
+    def __init__(self, inplace=False):
+        super().__init__(min_val=0., max_val=6., inplace=inplace)
+
 
 class Tanh(nn.Module):
     """Applies the Hyperbolic Tangent (Tanh) function element-wise.
@@ -95,14 +155,3 @@ class Tanh(nn.Module):
     # torch.nn.Tanh(*args, **kwargs)
     def forward(self, x):
         return torch.tanh(x)
-
-    
-class ReLU(nn.Module):
-    """Applies the rectified linear unit function element-wise.
-
-    ReLU(x) = max(0, x)
-    """
-
-    # torch.nn.ReLU(inplace=False)
-    def forward(self, x):
-        return F.relu(x)

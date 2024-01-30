@@ -1,7 +1,7 @@
 import torch.nn as tnn
 import torch.nn.functional as F
 
-from nn import BatchNorm2d, Flatten, Linear
+from nn import BatchNorm2d, Flatten, Linear, ReLU6
 
 __all__ = [
     'MobileNetV2'
@@ -21,14 +21,14 @@ class Bottleneck(tnn.Module):
                 # conv1x1, relu6
                 tnn.Conv2d(in_planes, hidden_dim, kernel_size=1, bias=False),
                 BatchNorm2d(hidden_dim),
-                tnn.ReLU6()
+                ReLU6()
             ])
 
         layers.extend([
             # dwise conv3x3, relu6
             tnn.Conv2d(hidden_dim, hidden_dim, kernel_size=3, stride=stride, padding=1, groups=hidden_dim, bias=False),
             BatchNorm2d(hidden_dim),
-            tnn.ReLU6(),
+            ReLU6(),
             # conv1x1, linear
             tnn.Conv2d(hidden_dim, planes, kernel_size=1, bias=False),
             BatchNorm2d(planes)
@@ -72,7 +72,7 @@ class MobileNetV2(tnn.Module):
         layers.extend([
             tnn.Conv2d(in_planes, planes, kernel_size=3, stride=2, padding=1, bias=False),
             BatchNorm2d(planes),
-            tnn.ReLU6()
+            ReLU6()
         ])
 
         # bottleneck
@@ -89,7 +89,7 @@ class MobileNetV2(tnn.Module):
             # conv1x1
             tnn.Conv2d(in_planes, planes, kernel_size=1, stride=1, bias=False),
             BatchNorm2d(planes),
-            tnn.ReLU6(),
+            ReLU6(),
             # avgpool
             tnn.AdaptiveAvgPool2d((1, 1)),
             Flatten(),
