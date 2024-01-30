@@ -92,8 +92,8 @@ if __name__ == "__main__":
     train_kwargs = {"batch_size": args.batch_size}
     test_kwargs = {"batch_size": args.test_batch_size}
 
-    dataset1 = datasets.MNIST("examples/classification_models", train=True, download=True, transform=transform)
-    dataset2 = datasets.MNIST("examples/classification_models", train=False, transform=transform)
+    dataset1 = datasets.MNIST("examples/classification", train=True, download=True, transform=transform)
+    dataset2 = datasets.MNIST("examples/classification", train=False, transform=transform)
 
     train_loader = torch.utils.data.DataLoader(dataset1, **train_kwargs)
     test_loader = torch.utils.data.DataLoader(dataset2, **test_kwargs)

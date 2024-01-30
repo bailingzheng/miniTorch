@@ -1,7 +1,7 @@
 from .activation import MultiheadAttention
 from .activation import ReLU
 from .activation import Tanh
-from .batchnorm import BatchNorm1d
+from .batchnorm import BatchNorm1d, BatchNorm2d
 from .conv import Conv2d
 from .dropout import Dropout
 from .flatten import Flatten
@@ -17,6 +17,7 @@ __all__ = [
     'ReLU',
     'Tanh',
     'BatchNorm1d',
+    'BatchNorm2d',
     'Conv2d',
     'Dropout',
     'Flatten',
