@@ -16,8 +16,11 @@ The APIs are almost the same as PyTorch, except that some optional parameters ar
     * BatchNorm2d
     * LayerNorm
 - Non-linear Activations
+    * Hardtanh
+    * LeakyReLU
     * MultiheadAttention
     * ReLU
+    * ReLU6
     * Tanh
 - Pooling layers
     * MaxPool2d

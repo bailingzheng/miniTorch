@@ -30,7 +30,7 @@ class Block(tnn.Module):
         self.conv2 = conv3x3(planes, planes)
         self.bn2 = BatchNorm2d(planes)
 
-        self.relu = ReLU() # inplace=True
+        self.relu = ReLU(inplace=True)
         self.downsample = downsample
 
     def forward(self, x):
@@ -62,7 +62,7 @@ class ResNet(tnn.Module):
 
         self.conv1 = Conv2d(1, 64, kernel_size=7, stride=2, padding=3, bias=False)
         self.bn1 = BatchNorm2d(64)
-        self.relu = ReLU() # inplace=True
+        self.relu = ReLU(inplace=True)
         self.maxpool = MaxPool2d(kernel_size=3, stride=2, padding=1)
 
         self.conv2_x = self._make_layer(64, 64, blocks[0])

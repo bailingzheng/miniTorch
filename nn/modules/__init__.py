@@ -1,6 +1,4 @@
-from .activation import MultiheadAttention
-from .activation import ReLU
-from .activation import Tanh
+from .activation import Hardtanh, LeakyReLU, MultiheadAttention, ReLU, ReLU6, Tanh
 from .batchnorm import BatchNorm1d, BatchNorm2d
 from .conv import Conv2d
 from .dropout import Dropout
@@ -13,8 +11,11 @@ from .transformer import TransformerDecoderLayer, TransformerDecoder, Transforme
     TransformerEncoder, Transformer
 
 __all__ = [
+    'Hardtanh',
+    'LeakyReLU',
     'MultiheadAttention',
     'ReLU',
+    'ReLU6',
     'Tanh',
     'BatchNorm1d',
     'BatchNorm2d',
