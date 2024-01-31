@@ -13,8 +13,8 @@ def conv3x3(in_planes, planes):
 
 
 def upconv(in_planes, planes):
-    """3x3 transposed convolution"""
-    return tnn.ConvTranspose2d(in_planes, planes, kernel_size=3, stride=2)
+    """2x2 transposed convolution"""
+    return tnn.ConvTranspose2d(in_planes, planes, kernel_size=2, stride=2)
 
 
 class Block(tnn.Module):
@@ -83,10 +83,6 @@ class UNet(tnn.Module):
         self.upconv4 = upconv(planes * 2, planes)
         self.block9 = Block(planes * 2, planes)
 
-        # self.conv1 = Conv2d(planes, planes, kernel_size=3, padding=1, bias=False)
-        # self.bn = BatchNorm2d(planes)
-        # self.relu = ReLU()
-
         self.conv2 = Conv2d(planes, num_classes, kernel_size=1)
 
     def forward(self, x):
@@ -115,10 +111,6 @@ class UNet(tnn.Module):
 
         u4 = self.upconv4(y8)
         y9 = self.block9(torch.cat((u4, y1), dim=1))
-
-        # y = self.conv1(y9)
-        # y = self.bn(y)
-        # y = self.relu(y)
 
         y = self.conv2(y9)
 
