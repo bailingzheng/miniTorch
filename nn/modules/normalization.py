@@ -11,8 +11,8 @@ class LayerNorm(nn.Module):
     Layer Normalization (https://arxiv.org/abs/1607.06450)
 
     Parameters
-        normalized_shape (int or list or torch.Size) - input shape from an expected input of size(*, normalized_shape)
-        eps (float) - a value added to the denominator for numerical stability. Default: 1e-5
+        normalized_shape - input shape from an expected input of size(*, normalized_shape)
+        eps - a value added to the denominator for numerical stability. Default: 1e-5
 
     Shape
         (N, *) -> (N, *)

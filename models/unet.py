@@ -48,9 +48,13 @@ class UNet(tnn.Module):
     """The architecutre is based on the paper: U-Net: Convolutional Networks for Biomedical Image Segmentation.
     (https://arxiv.org/abs/1505.04597)
 
+    Shape
+        (N, 3, H, W) -> (N, C, H, W)
+        where N is the batch size, H is the image height, W is the image width, and C is the number of classes.
+
     """
 
-    def __init__(self, planes = 32, num_classes=23):
+    def __init__(self, planes=32, num_classes=23):
         super().__init__()
 
         self.block1 = Block(3, planes)

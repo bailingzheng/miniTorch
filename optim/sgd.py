@@ -17,10 +17,10 @@ class SGD(Optimizer):
     Moreover, the initial value of the momentum buffer is set to the gradient value at the first step. 
 
     Parameters
-        params (iterable) - iterable of parameters to optimize or dicts defining parameter groups
-        lr (float) - learning rate
-        alpha (float, optional) - momentum factor (default: 0)
-        weight_decay (float, optional) - weight decay (L2 penalty) (default: 0)
+        params - iterable of parameters to optimize or dicts defining parameter groups
+        lr - learning rate
+        alpha - momentum factor (default: 0)
+        weight_decay - weight decay (L2 penalty) (default: 0)
 
     """
 

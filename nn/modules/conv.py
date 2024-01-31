@@ -10,12 +10,12 @@ class Conv2d(nn.Module):
     """Applies a 2D convolution over an input signal composed of several input planes.
 
     Parameters
-        in_channels (int) - Number of channels in the input image
-        out_channels (int) - Number of channels produced by the convolution
-        kernel_size (int or tuple) - Size of the convolving kernel
-        stride (int or tuple, optional) - Stride of the convolution. Default: 1
-        padding (int, tuple or str, optional) - Padding added to all four sides of the input. Default: 0
-        bias (bool, optional) - If True, adds a learnable bias to the output. Default: True
+        in_channels - Number of channels in the input image
+        out_channels - Number of channels produced by the convolution
+        kernel_size - Size of the convolving kernel
+        stride - Stride of the convolution. Default: 1
+        padding - Padding added to all four sides of the input. Default: 0
+        bias - If True, adds a learnable bias to the output. Default: True
 
     Shape
         (N, C_in, H_in, W_in) -> (N, C_out, H_out, W_out)

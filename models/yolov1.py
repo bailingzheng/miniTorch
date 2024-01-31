@@ -30,8 +30,12 @@ class Block(tnn.Module):
 
 
 class DarkNetV1(tnn.Module):
-    """The architecture is based on the page: You Only Look Once: Unified, Real-Time Object Detection
+    """The architecture is based on the paper: You Only Look Once: Unified, Real-Time Object Detection
     (https://arxiv.org/abs/1506.02640)
+
+    Shape
+        (N, 3, 448, 448) -> (N, 5*B + C, 7, 7)
+        where N is the batch size, B is the number of bounding boxes, and C is the number of classes.
     """
 
     # https://github.com/pjreddie/darknet/blob/master/cfg/yolov1-tiny.cfg
@@ -88,6 +92,6 @@ class DarkNetV1(tnn.Module):
 
         x = self.flatten(x)
         x = self.fc(x)
-        x = x.view(-1, 7, 7, 5 * self.num_bboxes + self.num_classes)
+        x = x.view(-1, 5 * self.num_bboxes + self.num_classes, 7, 7)
 
         return x

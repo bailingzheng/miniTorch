@@ -19,11 +19,11 @@ class RMSprop(Optimizer):
         where P, G, V denote the parameters, gradient, and velocity respectively.
 
     Parameters
-        params (iterable) - iterable of parameters to optimize or dicts defining parameter groups
-        lr (float, optional) - learning rate (default: 1e-2)
-        alpha (float, optional) - smoothing constant (default: 0.99)
-        eps (float, optional) - term added to the denominator to improve numerical stability (default: 1e-8)
-        weight_decay (float, optional) - weight decay (L2 penalty) (default: 0)
+        params - iterable of parameters to optimize or dicts defining parameter groups
+        lr - learning rate (default: 1e-2)
+        alpha - smoothing constant (default: 0.99)
+        eps - term added to the denominator to improve numerical stability (default: 1e-8)
+        weight_decay - weight decay (L2 penalty) (default: 0)
 
     """
 

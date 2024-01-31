@@ -49,6 +49,10 @@ class Bottleneck(tnn.Module):
 class MobileNetV2(tnn.Module):
     """The architecture is based on the paper: MobileNetV2: Inverted Residuals and Linear Bottlenecks.
     (https://arxiv.org/abs/1801.04381)
+
+    Shape
+        (N, 1, H, W) -> (N, C)
+        where N is the batch size, H is the image height, W is the image width, and C is the number of classes.
     """
 
     def __init__(self, num_classes=1000):

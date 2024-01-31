@@ -15,10 +15,10 @@ class BatchNorm1d(nn.Module):
     (https://arxiv.org/abs/1502.03167)
 
     Parameters
-        num_features (int) - number of features or channels C of the input
-        eps (float) - a value added to the denominator for numerical stability. Default: 1e-5
+        num_features - number of features or channels C of the input
+        eps - a value added to the denominator for numerical stability. Default: 1e-5
 
-        momentum (float) - the value used for the running_mean and running_var computation. 
+        momentum - the value used for the running_mean and running_var computation. 
         Can be set to None for cumulative moving average (i.e. simple average). Default: 0.1
 
     Shape
@@ -74,10 +74,10 @@ class BatchNorm2d(nn.Module):
     (https://arxiv.org/abs/1502.03167)
 
     Parameters
-        num_features (int) - number of features or channels C of the input
-        eps (float) - a value added to the denominator for numerical stability. Default: 1e-5
+        num_features - number of features or channels C of the input
+        eps - a value added to the denominator for numerical stability. Default: 1e-5
 
-        momentum (float) - the value used for the running_mean and running_var computation. 
+        momentum - the value used for the running_mean and running_var computation. 
         Can be set to None for cumulative moving average (i.e. simple average). Default: 0.1
 
     Shape
@@ -85,8 +85,6 @@ class BatchNorm2d(nn.Module):
         where N is the batch size, C is the number of features or channels.
     """
 
-    # torch.nn.BatchNorm1d(num_features, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True, 
-    #   device=None, dtype=None)
     def __init__(self, num_features, eps=1e-05, momentum=0.1):
         super().__init__()
         self.eps = eps

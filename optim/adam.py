@@ -22,11 +22,11 @@ class Adam(Optimizer):
         where P, G, M, V denote the parameters, gradient, momentum, and velocity respectively.
 
     Parameters
-        params (iterable) - iterable of parameters to optimize or dicts defining parameter groups
-        lr (float, Tensor, optional) - learning rate (default: 1e-3). 
-        betas (Tuple[float, float], optional) - coefficients used for computing running averages of gradient and its square (default: (0.9, 0.999))
-        eps (float, optional) - term added to the denominator to improve numerical stability (default: 1e-8)
-        weight_decay (float, optional) - weight decay (L2 penalty) (default: 0)
+        params - iterable of parameters to optimize or dicts defining parameter groups
+        lr - learning rate (default: 1e-3). 
+        betas - coefficients used for computing running averages of gradient and its square (default: (0.9, 0.999))
+        eps - term added to the denominator to improve numerical stability (default: 1e-8)
+        weight_decay - weight decay (L2 penalty) (default: 0)
 
     """
 

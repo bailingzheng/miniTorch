@@ -55,6 +55,10 @@ class Block(tnn.Module):
 class ResNet(tnn.Module):
     """The architecture is based on the paper: Deep Residual Learning for Image Recognition.
     (https://arxiv.org/abs/1512.03385)
+
+    Shape
+        (N, 1, H, W) -> (N, C)
+        where N is the batch size, H is the image height, W is the image width, and C is the number of classes.
     """
 
     def __init__(self, blocks, num_classes=1000):

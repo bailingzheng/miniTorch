@@ -8,8 +8,8 @@ class Flatten(nn.Module):
     """Flattens a contiguous range of dims into a tensor. 
 
     Parameters
-        start_dim (int) - first dim to flatten (default = 1).
-        end_dim (int) - last dim to flatten (default = -1).
+        start_dim - first dim to flatten (default = 1).
+        end_dim - last dim to flatten (default = -1).
 
     Shape
         (*, S_start, ..., S_end, *) -> (*, S_start * ... * S_end, *)
