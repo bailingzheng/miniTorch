@@ -9,8 +9,8 @@ class Embedding(nn.Module):
     """A simple lookup table that stores embeddings of a fixed dictionary and size.
 
     Parameters
-        num_embeddings (int) - size of the dictionary of embeddings
-        embedding_dim (int) - the size of each embedding vector
+        num_embeddings - size of the dictionary of embeddings
+        embedding_dim - the size of each embedding vector
 
     Shape
         (*) -> (*, embedding_dim)

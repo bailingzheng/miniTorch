@@ -81,11 +81,11 @@ class MultiheadAttention(nn.Module):
     def forward(self, query, key, value, attn_mask=None):
         """
         Parameters
-            query (Tensor) - Query embeddings of shape (N, T, E)
-            key (Tensor) - Key embeddings of shape (N, S, E)
-            value (Tensor) - Value embeddings of shape (N, S, E)
+            query - Query embeddings of shape (N, T, E)
+            key - Key embeddings of shape (N, S, E)
+            value - Value embeddings of shape (N, S, E)
 
-            attn_mask (Optional[Tensor]) - If specified, a 2D or 3D mask preventing attention to certain positions. 
+            attn_mask - If specified, a 2D or 3D mask preventing attention to certain positions. 
             Must be of shape (T, S) or (N * num_heads, T, S). Binary and float masks are supported. 
             For a binary mask, a True value indicates that the corresponding position is not allowed to attend. 
             For a float mask, the mask values will be added to the attention weight. 
@@ -146,10 +146,7 @@ class ReLU6(Hardtanh):
 class Tanh(nn.Module):
     """Applies the Hyperbolic Tangent (Tanh) function element-wise.
 
-    Tanh(x) = tanh(x) = (exp(x) - exp(-x)) / (exp(x) + exp(-x))
-
-    Shape
-        (*) -> (*) where * means any number of dimensions.
+    Tanh(x) = (exp(x) - exp(-x)) / (exp(x) + exp(-x))
     """
 
     # torch.nn.Tanh(*args, **kwargs)

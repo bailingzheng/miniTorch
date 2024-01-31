@@ -39,7 +39,7 @@ The APIs are almost the same as PyTorch, except that some optional parameters ar
 - Adam
 - AdamW
 - RMSprop
-- SGD
+- SGD (with momentum)
 
 ## Computer Vision Models
 - Classification

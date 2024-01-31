@@ -20,10 +20,10 @@ class TransformerDecoderLayer(nn.Module):
     This standard decoder layer is based on the paper: Attention Is All You Need (https://arxiv.org/abs/1706.03762).
     
     Parameters
-        d_model (int) - the number of expected features in the input (required).
-        nhead (int) - the number of heads in the multiheadattention models (required).
-        dim_feedforward (int) - the dimension of the feedforward network model (default=2048).
-        dropout (float) - the dropout value (default=0.1).
+        d_model - the number of expected features in the input (required).
+        nhead - the number of heads in the multiheadattention models (required).
+        dim_feedforward - the dimension of the feedforward network model (default=2048).
+        dropout - the dropout value (default=0.1).
                 
     Shape
         (N, T, E)[tgt], (N, S, E)[memory] -> (N, T, E)
@@ -72,8 +72,8 @@ class TransformerDecoderLayer(nn.Module):
         """Pass the inputs (and mask) through the decoder layer.
 
         Parameters
-            tgt (Tensor) - the sequence to the decoder layer (required).
-            memory (Tensor) - the sequence from the last layer of the encoder (required).
+            tgt - the sequence to the decoder layer (required).
+            memory - the sequence from the last layer of the encoder (required).
 
         """
         x = tgt
@@ -108,8 +108,8 @@ class TransformerDecoder(nn.Module):
         """Pass the inputs (and mask) through the decoder layer in turn.
 
         Parameters
-            tgt (Tensor) - the sequence to the decoder (required).
-            memory (Tensor) - the sequence from the last layer of the encoder (required).
+            tgt - the sequence to the decoder (required).
+            memory - the sequence from the last layer of the encoder (required).
         
         """
         for layer in self.layers:
@@ -126,10 +126,10 @@ class TransformerEncoderLayer(nn.Module):
     This standard encoder layer is based on the paper: Attention Is All You Need (https://arxiv.org/abs/1706.03762).
 
     Parameters
-        d_model (int) - the number of expected features in the input (required).
-        nhead (int) - the number of heads in the multiheadattention models (required).
-        dim_feedforward (int) - the dimension of the feedforward network model (default=2048).
-        dropout (float) - the dropout value (default=0.1).
+        d_model - the number of expected features in the input (required).
+        nhead - the number of heads in the multiheadattention models (required).
+        dim_feedforward - the dimension of the feedforward network model (default=2048).
+        dropout - the dropout value (default=0.1).
 
     Shape
         (N, S, E) -> (N, S, E)
@@ -168,8 +168,8 @@ class TransformerEncoderLayer(nn.Module):
         """Pass the input through the encoder layer.
 
         Parameters
-            src (Tensor) - the sequence to the encoder layer (required).
-            src_mask (Optional[Tensor]) - the mask for the src sequence (optional).
+            src - the sequence to the encoder layer (required).
+            src_mask - the mask for the src sequence (optional).
 
         """
         x = src
@@ -204,8 +204,8 @@ class TransformerEncoder(nn.Module):
         """Pass the input through the encoder layers in turn.
 
         Parameters
-            src (Tensor) - the sequence to the encoder (required).
-            mask (Optional[Tensor]) - the mask for the src sequence (optional).
+            src - the sequence to the encoder (required).
+            mask - the mask for the src sequence (optional).
         """
         x = src
         for layer in self.layers:
@@ -220,12 +220,12 @@ class Transformer(nn.Module):
     """A transformer model. The architecture is based on the paper: Attention Is All You Need. 
 
     Parameters
-        d_model (int) - the number of expected features in the encoder/decoder inputs (default=512).
-        nhead (int) - the number of heads in the multiheadattention models (default=8).
-        num_encoder_layers (int) - the number of sub-encoder-layers in the encoder (default=6).
-        num_decoder_layers (int) - the number of sub-decoder-layers in the decoder (default=6).
-        dim_feedforward (int) - the dimension of the feedforward network model (default=2048).
-        dropout (float) - the dropout value (default=0.1).
+        d_model - the number of expected features in the encoder/decoder inputs (default=512).
+        nhead - the number of heads in the multiheadattention models (default=8).
+        num_encoder_layers - the number of sub-encoder-layers in the encoder (default=6).
+        num_decoder_layers - the number of sub-decoder-layers in the decoder (default=6).
+        dim_feedforward - the dimension of the feedforward network model (default=2048).
+        dropout - the dropout value (default=0.1).
 
     Shape
         (N, T, E)[tgt], (N, S, E)[src] -> (N, T, E)
@@ -255,11 +255,11 @@ class Transformer(nn.Module):
         """Take in and process masked source/target sequences.
 
         Parameters
-            src (Tensor) - the sequence to the encoder (required).
-            tgt (Tensor) - the sequence to the decoder (required).
-            src_mask (Optional[Tensor]) - the additive mask for the src sequence (optional).
-            tgt_mask (Optional[Tensor]) - the additive mask for the tgt sequence (optional).
-            memory_mask (Optional[Tensor]) - the additive mask for the encoder output (optional).
+            src - the sequence to the encoder (required).
+            tgt - the sequence to the decoder (required).
+            src_mask - the additive mask for the src sequence (optional).
+            tgt_mask - the additive mask for the tgt sequence (optional).
+            memory_mask - the additive mask for the encoder output (optional).
 
         """
         memory = self.encoder(src, mask=src_mask)
