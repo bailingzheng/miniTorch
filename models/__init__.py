@@ -1,4 +1,5 @@
 from .bigram import *
+from .googlenet import *
 from .mlp import *
 from .mobilenetv2 import *
 from .resnet import *

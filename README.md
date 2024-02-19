@@ -45,6 +45,7 @@ The APIs are almost the same as PyTorch, except that some optional parameters ar
 - Classification
     * ResNet
     * MobileNetV2
+    * GoogLeNet
 - Object Detection
     * YOLOv1
 - Semantic Segmentation
