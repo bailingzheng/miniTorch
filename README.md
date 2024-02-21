@@ -43,9 +43,10 @@ The APIs are almost the same as PyTorch, except that some optional parameters ar
 
 ## Computer Vision Models
 - Classification
-    * ResNet
-    * MobileNetV2
     * GoogLeNet
+    * InceptionResnetV1
+    * MobileNetV2
+    * ResNet
 - Object Detection
     * YOLOv1
 - Semantic Segmentation
