@@ -169,7 +169,7 @@ class InceptionResnetV1(tnn.Module):
         # 147x147x32
         self.conv2 = BasicConv2d(32, 32, kernel_size=3)
         # 147x147x64
-        self.conv3 = BasicConv2d(32, 64, kernel_size=3, padding=2)
+        self.conv3 = BasicConv2d(32, 64, kernel_size=3, padding=1)
         # 73x73x64
         self.maxpool = MaxPool2d(kernel_size=3, stride=2)
         # 73x73x80

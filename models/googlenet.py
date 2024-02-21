@@ -42,7 +42,7 @@ class Inception(tnn.Module):
         )
         self.branch3 = tnn.Sequential(
             BasicConv2d(in_channels, num_5x5_reduce, kernel_size=1),
-            BasicConv2d(num_5x5_reduce, num_5x5, kernel_size=5, padding=3)
+            BasicConv2d(num_5x5_reduce, num_5x5, kernel_size=5, padding=2)
         )
         self.branch4 = tnn.Sequential(
             MaxPool2d(kernel_size=3, stride=1, padding=1),
