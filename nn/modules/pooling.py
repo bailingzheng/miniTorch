@@ -45,8 +45,8 @@ class MaxPool2d(nn.Module):
         y_unf = x_unf.max(dim=2)[0] # (N, C, H_out * W_out)
         y = y_unf.view(N, C, H_out, W_out)
 
-        # y_max_pool2d = F.max_pool2d(x, self.kernel_size, stride=self.stride, padding=self.padding)
-        # print(torch.equal(y, y_max_pool2d))
+        # f = F.max_pool2d(x, self.kernel_size, stride=self.stride, padding=self.padding)
+        # print(torch.equal(y, f))
         
         return y
 

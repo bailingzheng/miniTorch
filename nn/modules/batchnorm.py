@@ -62,8 +62,8 @@ class BatchNorm1d(nn.Module):
         if x.dim() == 3:
             y = y_t.transpose(1, 2)
 
-        # y2 = F.batch_norm(x, xmean, xvar, training=True)
-        # print((y2 - y).abs().max())
+        # f = F.batch_norm(x, xmean, xvar, training=True)
+        # print((f - y).abs().max())
         
         return y
 
@@ -114,7 +114,7 @@ class BatchNorm2d(nn.Module):
 
         y = y_t.transpose(1, 3)
         
-        # y2 = F.batch_norm(x, xmean, xvar, training=True)
-        # print((y2 - y).abs().max())
+        # f = F.batch_norm(x, xmean, xvar, training=True)
+        # print((f - y).abs().max())
         
         return y

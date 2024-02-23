@@ -36,7 +36,7 @@ class LayerNorm(nn.Module):
         y = self.gamma * (x - xmean) / (xvar + self.eps)**0.5 + self.beta
         
         # normalized_shape = (self.normalized_shape, ) if isinstance(self.normalized_shape, int) else self.normalized_shape
-        # y_layer_norm = F.layer_norm(x, normalized_shape, weight=None, bias=None, eps=1e-05)
-        # print((y_layer_norm - y).abs().max())
+        # f = F.layer_norm(x, normalized_shape, weight=None, bias=None, eps=1e-05)
+        # print((f - y).abs().max())
   
         return y

@@ -60,7 +60,7 @@ class Conv2d(nn.Module):
         y_unf = y_unf.transpose(1, 2) # (N, C_out, H_out * W_out)
         y = y_unf.view(N, -1, H_out, W_out)
 
-        # y_conv2d = F.conv2d(x, self.weight, bias=self.bias, stride=self.stride, padding=self.padding)
-        # print((y_conv2d - y).abs().max())
+        # f = F.conv2d(x, self.weight, bias=self.bias, stride=self.stride, padding=self.padding)
+        # print((f - y).abs().max())
 
         return y
