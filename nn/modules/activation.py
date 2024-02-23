@@ -110,8 +110,8 @@ class MultiheadAttention(nn.Module):
 
         y = functional.scaled_dot_product_attention(q, k, v, attn_mask=attn_mask)
 
-        # y2 = F.scaled_dot_product_attention(q, k, v, attn_mask=attn_mask)
-        # print((y2 - y).abs().max())
+        # f = F.scaled_dot_product_attention(q, k, v, attn_mask=attn_mask)
+        # print((f - y).abs().max())
 
         y = y.transpose(1, 2).contiguous().view(-1, T, self.embed_dim)
         y = self.W_out(y)
