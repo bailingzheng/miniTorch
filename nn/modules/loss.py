@@ -1,3 +1,4 @@
+import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
@@ -5,7 +6,8 @@ __all__ = [
     'CrossEntropyLoss',
     'L1Loss',
     'MSELoss',
-    'NLLLoss'
+    'NLLLoss',
+    'TripletMarginLoss'
 ]
 
 class _Loss(nn.Module):
@@ -26,7 +28,7 @@ class L1Loss(_Loss):
     """Creates a criterion that measures the mean absolute error (MAE) between each element in
     the input x and target y.
 
-    L = {l_1, l_2, ..., l_N}, l_n = |x_n - y_n|
+    L = {l[1], l[2], ..., l[N]}, l[n] = |x[n] - y[n]|
 
     Parameters
         reduction - Specifies the reduction to apply to the output: 'none' | 'mean' | 'sum'. 
@@ -58,7 +60,7 @@ class MSELoss(_Loss):
     """Creates a criterion that measures the mean squared error (squared L2 norm) between each element in 
     the input x and target y.
 
-    L = {l_1, l_2, ..., l_N}, l_n = (x_n - y_n)**2
+    L = {l[1], l[2], ..., l[N]}, l[n] = (x[n] - y[n])**2
 
     Parameters
         reduction - Specifies the reduction to apply to the output: 'none' | 'mean' | 'sum'. 
@@ -93,7 +95,7 @@ class CrossEntropyLoss(_WeightedLoss):
 
     The target that this criterion expects should contain probabilities for each class.
 
-    L = {l_1, l_2, ..., l_N}, l_n = -sum(y_n * log_softmax(x_n))
+    L = {l[1], l[2], ..., l[N]}, l[n] = -sum(y[n] * log_softmax(x[n]))
 
     Parameters
         reduction - Specifies the reduction to apply to the output: 'none' | 'mean' | 'sum'. 
@@ -134,7 +136,7 @@ class NLLLoss(_WeightedLoss):
 
     The target that this loss expects should be a class index in the range [0, C-1].
 
-    L = {l_1, l_2, ..., l_N}, l_n = -x_n[y_n] 
+    L = {l[1], l[2], ..., l[N]}, l[n] = -x[n, y[n]] 
 
     Parameters
         reduction - Specifies the reduction to apply to the output: 'none' | 'mean' | 'sum'. 
@@ -164,5 +166,48 @@ class NLLLoss(_WeightedLoss):
         else:
             output = L
         # f = F.nll_loss(input, target, reduction=self.reduction)
+        # print((f - output).abs().max())
+        return output
+
+
+class TripletMarginLoss(_Loss):
+    """Creates a criterion that measures the triplet loss given an input tensors x1, x2, x3, and a margin with a value greater than 0. 
+    This is used for measuring a relative similarity between samples. 
+
+    L(a, p, n) = max{d(a, p) - d(a, n) + margin, 0}
+
+    Parameters
+        margin - 
+        p - The norm degree for pairwise distance.
+        eps - Small constant for numerical stability. 
+        reduction - Specifies the reduction to apply to the output: 'none' | 'mean' | 'sum'. 
+
+    Shape
+        Input: (N, D) or (D) where D is the vector dimension.
+        Output: If reduction is 'none' and input shape is (N, D), shape (N). Otherwise, scalar.
+    """
+
+    # torch.nn.TripletMarginLoss(margin=1.0, p=2.0, eps=1e-06, swap=False, size_average=None, reduce=None, reduction='mean')
+    def __init__(self, margin=1.0, p=2.0, eps=1e-06, reduction='mean'):
+        super().__init__(reduction)
+        self.margin = margin
+        self.p = p
+        self.eps = eps
+
+    def forward(self, anchor, positive, negative):
+        dim = 0 if anchor.dim() == 1 else 1
+
+        d1 = torch.linalg.vector_norm(anchor - positive + self.eps, ord=self.p, dim=dim)
+        d2 = torch.linalg.vector_norm(anchor - negative + self.eps, ord=self.p, dim=dim)
+        L = d1 - d2 + self.margin
+        L = torch.maximum(L, torch.zeros_like(L))
+        
+        if self.reduction == 'mean':
+            output = L.mean()
+        elif self.reduction == 'sum':
+            output = L.sum()
+        else:
+            output = L
+        # f = F.triplet_margin_loss(anchor, positive, negative, margin=self.margin, p=self.p, eps=self.eps, reduction=self.reduction)
         # print((f - output).abs().max())
         return output
