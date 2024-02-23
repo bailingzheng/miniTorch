@@ -16,6 +16,7 @@ The APIs are almost the same as PyTorch, except that some optional parameters ar
     * L1Loss
     * MSELoss
     * NLLLoss
+    * TripletMarginLoss
 - Normalization Layers
     * BatchNorm1d
     * BatchNorm2d
