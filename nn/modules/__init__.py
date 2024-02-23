@@ -4,6 +4,7 @@ from .conv import Conv2d
 from .dropout import Dropout
 from .flatten import Flatten
 from .linear import Linear
+from .loss import CrossEntropyLoss, L1Loss, MSELoss, NLLLoss
 from .normalization import LayerNorm
 from .pooling import MaxPool2d
 from .sparse import Embedding
@@ -23,6 +24,10 @@ __all__ = [
     'Dropout',
     'Flatten',
     'Linear',
+    'CrossEntropyLoss',
+    'L1Loss',
+    'MSELoss',
+    'NLLLoss',
     'LayerNorm',
     'MaxPool2d',
     'Embedding',
