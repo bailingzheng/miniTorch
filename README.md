@@ -24,6 +24,7 @@ The APIs are almost the same as PyTorch, except that some optional parameters ar
 - Non-linear Activations
     * Hardtanh
     * LeakyReLU
+    * LogSoftmax
     * MultiheadAttention
     * ReLU
     * ReLU6

@@ -1,4 +1,4 @@
-from .activation import Hardtanh, LeakyReLU, MultiheadAttention, ReLU, ReLU6, Tanh
+from .activation import Hardtanh, LeakyReLU, LogSoftmax, MultiheadAttention, ReLU, ReLU6, Tanh
 from .batchnorm import BatchNorm1d, BatchNorm2d
 from .conv import Conv2d
 from .dropout import Dropout
@@ -14,6 +14,7 @@ from .transformer import TransformerDecoderLayer, TransformerDecoder, Transforme
 __all__ = [
     'Hardtanh',
     'LeakyReLU',
+    'LogSoftmax',
     'MultiheadAttention',
     'ReLU',
     'ReLU6',

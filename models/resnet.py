@@ -1,7 +1,7 @@
 import torch.nn as tnn
 import torch.nn.functional as F
 
-from nn import BatchNorm2d, Conv2d, Flatten, Linear, MaxPool2d, ReLU
+from nn import BatchNorm2d, Conv2d, Flatten, Linear, MaxPool2d, ReLU, LogSoftmax
 
 __all__ = [
     'ResNet'
@@ -77,6 +77,7 @@ class ResNet(tnn.Module):
         self.avgpool = tnn.AdaptiveAvgPool2d((1, 1))
         self.flatten = Flatten()
         self.fc = Linear(512, num_classes)
+        self.log_softmax = LogSoftmax(dim=-1)
 
     def _make_layer(self, in_planes, planes, blocks, stride=1):
         downsample = None
@@ -110,5 +111,6 @@ class ResNet(tnn.Module):
         x = self.avgpool(x)
         x = self.flatten(x)
         x = self.fc(x)
+        x = self.log_softmax(x)
 
         return x
