@@ -7,16 +7,16 @@ from torch.optim.lr_scheduler import StepLR
 
 from models import ResNet, MobileNetV2
 from optim import AdamW
+from nn import NLLLoss
 
 
 def train(model, train_loader, optimizer, epoch):
     model.train()
+    nll_loss = NLLLoss()
     for batch_idx, (x, y) in enumerate(train_loader):
-        
         optimizer.zero_grad()
         y_pred = model(x)
-
-        loss = F.cross_entropy(y_pred.view(-1, y_pred.size(-1)), y.view(-1), ignore_index=-1)
+        loss = nll_loss(y_pred, y)
         loss.backward()
         optimizer.step()
 
@@ -27,12 +27,11 @@ def train(model, train_loader, optimizer, epoch):
 def test(model, test_loader):
     model.eval()
     losses = []
+    nll_loss = NLLLoss()
     with torch.no_grad():
         for x, y in test_loader:
-           
             y_pred = model(x)
-
-            loss = F.cross_entropy(y_pred.view(-1, y_pred.size(-1)), y.view(-1), ignore_index=-1)
+            loss = nll_loss(y_pred, y)
             losses.append(loss.item())
             
         mean_loss = torch.tensor(losses).mean().item()

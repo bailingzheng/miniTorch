@@ -8,6 +8,7 @@ from torch.utils.data import DataLoader
 from examples.language_models.data import CharDataset, InfiniteDataLoader
 from models import Bigram, MLP, Transformer
 from optim import AdamW
+from nn import LogSoftmax, NLLLoss
 
 
 def create_datasets(input_file):
@@ -42,11 +43,13 @@ def evaluate(model, dataset, batch_size=50, max_batches=None):
 
     loader = DataLoader(dataset, shuffle=True, batch_size=batch_size, num_workers=0)
     losses = []
+    log_softmax = LogSoftmax(dim=-1)
+    nll_loss = NLLLoss()
     for i, batch in enumerate(loader):
         x, y = [t for t in batch]
-        y_pred = model(x)
-
-        loss = F.cross_entropy(y_pred.view(-1, y_pred.size(-1)), y.view(-1), ignore_index=-1)
+        y_pred = log_softmax(model(x))
+     
+        loss = nll_loss(y_pred.view(-1, y_pred.size(-1)), y.view(-1))
         losses.append(loss.item())
         if max_batches is not None and i >= max_batches:
             break
@@ -189,6 +192,9 @@ if __name__ == "__main__":
     # init optimizer
     optimizer = AdamW(model.parameters(), lr=args.lr)
 
+    log_softmax = LogSoftmax(dim=-1)
+    nll_loss = NLLLoss()
+
     # init dataloader
     batch_loader = InfiniteDataLoader(
         train_dataset, 
@@ -205,9 +211,9 @@ if __name__ == "__main__":
         t0 = time.time()
 
         x, y = batch_loader.next()
-        y_pred = model(x)
-        loss = F.cross_entropy(y_pred.view(-1, y_pred.size(-1)), y.view(-1), ignore_index=-1)
-
+        y_pred = log_softmax(model(x))
+     
+        loss = nll_loss(y_pred.view(-1, y_pred.size(-1)), y.view(-1))
         model.zero_grad()
         loss.backward()
         optimizer.step()

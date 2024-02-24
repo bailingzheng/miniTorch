@@ -9,6 +9,7 @@ from .. import functional
 __all__ = [
     'Hardtanh',
     'LeakyReLU',
+    'LogSoftmax',
     'MultiheadAttention',
     'ReLU',
     'ReLU6',
@@ -46,6 +47,20 @@ class LeakyReLU(nn.Module):
 
     def forward(self, x):
         return F.leaky_relu(x, self.negative_slope, self.inplace)
+
+
+class LogSoftmax(nn.Module):
+    """Applies the log(softmax(x)) function to an n-dimensional input Tensor. 
+
+    LogSoftmax(x[i]) = log(exp(x[i]) / sum(exp(x[i])))
+    """
+
+    def __init__(self, dim=None):
+        super().__init__()
+        self.dim = dim
+
+    def forward(self, x):
+        return F.log_softmax(x, self.dim, _stacklevel=5)
 
 
 class MultiheadAttention(nn.Module):

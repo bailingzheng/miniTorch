@@ -1,7 +1,7 @@
 import torch.nn as tnn
 import torch.nn.functional as F
 
-from nn import BatchNorm2d, Flatten, Linear, ReLU6
+from nn import BatchNorm2d, Flatten, Linear, ReLU6, LogSoftmax
 
 __all__ = [
     'MobileNetV2'
@@ -97,7 +97,8 @@ class MobileNetV2(tnn.Module):
             # avgpool
             tnn.AdaptiveAvgPool2d((1, 1)),
             Flatten(),
-            Linear(planes, num_classes)
+            Linear(planes, num_classes),
+            LogSoftmax(dim=-1)
         ])
 
         self.net = tnn.Sequential(*layers)
