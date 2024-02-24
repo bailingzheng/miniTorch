@@ -28,7 +28,7 @@ class L1Loss(_Loss):
     """Creates a criterion that measures the mean absolute error (MAE) between each element in
     the input x and target y.
 
-    L = {l[1], l[2], ..., l[N]}, l[n] = |x[n] - y[n]|
+    L = {l[1], l[2], ..., l[N]}, l[i] = |x[i] - y[i]|
 
     Parameters
         reduction - Specifies the reduction to apply to the output: 'none' | 'mean' | 'sum'. 
@@ -39,6 +39,7 @@ class L1Loss(_Loss):
         Output: scalar. If reduction is 'none', then (*), same shape as the input.
     """
 
+    # torch.nn.L1Loss(size_average=None, reduce=None, reduction='mean')
     def __init__(self, reduction='mean'):
         super().__init__(reduction)
 
@@ -60,7 +61,7 @@ class MSELoss(_Loss):
     """Creates a criterion that measures the mean squared error (squared L2 norm) between each element in 
     the input x and target y.
 
-    L = {l[1], l[2], ..., l[N]}, l[n] = (x[n] - y[n])**2
+    L = {l[1], l[2], ..., l[N]}, l[i] = (x[i] - y[i])**2
 
     Parameters
         reduction - Specifies the reduction to apply to the output: 'none' | 'mean' | 'sum'. 
@@ -71,6 +72,7 @@ class MSELoss(_Loss):
         Output: scalar. If reduction is 'none', then (*), same shape as the input.
     """
 
+    # torch.nn.MSELoss(size_average=None, reduce=None, reduction='mean')
     def __init__(self, reduction='mean'):
         super().__init__(reduction)
 
@@ -95,19 +97,20 @@ class CrossEntropyLoss(_WeightedLoss):
 
     The target that this criterion expects should contain probabilities for each class.
 
-    L = {l[1], l[2], ..., l[N]}, l[n] = -sum(y[n] * log_softmax(x[n]))
+    L = {l[1], l[2], ..., l[N]}, l[i] = -sum(y[i] * log_softmax(x[i]))
 
     Parameters
         reduction - Specifies the reduction to apply to the output: 'none' | 'mean' | 'sum'. 
 
     Shape
         Input: (C) or (N, C).
-        Target: If containing class probabilities, same shape as the input and each value should be between [0, 1].
+        Target: same shape as the input and each value should be between [0, 1].
         Output: If reduction is 'none', shape (), (N), depending on the shape of the input. Otherwise, scalar.
 
         where C is the number of classes, and N is the batch size.
     """
 
+    # torch.nn.CrossEntropyLoss(weight=None, size_average=None, ignore_index=-100, reduce=None, reduction='mean', label_smoothing=0.0)
     def __init__(self, reduction='mean'):
         super().__init__(weight=None, reduction=reduction)
 
@@ -131,12 +134,9 @@ class NLLLoss(_WeightedLoss):
 
     The input given through a forward call is expected to contain log-probabilities of each class.
 
-    Obtaining log-probabilities in a neural network is easily achieved by adding a LogSoftmax layer in the last layer of your network. 
-    You may use CrossEntropyLoss instead, if you prefer not to add an extra layer.
-
     The target that this loss expects should be a class index in the range [0, C-1].
 
-    L = {l[1], l[2], ..., l[N]}, l[n] = -x[n, y[n]] 
+    L = {l[1], l[2], ..., l[N]}, l[i] = -x[i, y[i]] 
 
     Parameters
         reduction - Specifies the reduction to apply to the output: 'none' | 'mean' | 'sum'. 
@@ -149,6 +149,7 @@ class NLLLoss(_WeightedLoss):
         where C is the number of classes, and N is the batch size.
     """
 
+    # torch.nn.NLLLoss(weight=None, size_average=None, ignore_index=-100, reduce=None, reduction='mean')
     def __init__(self, reduction='mean'):
         super().__init__(weight=None, reduction=reduction)
 
@@ -174,7 +175,9 @@ class TripletMarginLoss(_Loss):
     """Creates a criterion that measures the triplet loss given an input tensors x1, x2, x3, and a margin with a value greater than 0. 
     This is used for measuring a relative similarity between samples. 
 
-    L(a, p, n) = max{d(a, p) - d(a, n) + margin, 0}
+    L = {l[1], l[2], ..., l[N]}, l[i] = max{d(a[i], p[i]) - d(a[i], n[i]) + margin, 0}
+
+    where the norm d(x1, x2) is calculated using the specified p value and a small constant eps is added for numerical stability.
 
     Parameters
         margin - 
