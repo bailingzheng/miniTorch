@@ -33,6 +33,7 @@ The APIs are almost the same as PyTorch, except that some optional parameters ar
     * MaxPool2d
 - Recurrent Layers
     * GRUCell
+    * LSTMCell
     * RNNCell
 - Sparse Layers
     * Embedding
