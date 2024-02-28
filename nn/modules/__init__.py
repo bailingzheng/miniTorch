@@ -7,6 +7,7 @@ from .linear import Linear
 from .loss import CrossEntropyLoss, L1Loss, MSELoss, NLLLoss, TripletMarginLoss
 from .normalization import LayerNorm
 from .pooling import MaxPool2d
+from .rnn import GRUCell, RNNCell
 from .sparse import Embedding
 from .transformer import TransformerDecoderLayer, TransformerDecoder, TransformerEncoderLayer, \
     TransformerEncoder, Transformer
@@ -32,6 +33,8 @@ __all__ = [
     'TripletMarginLoss',
     'LayerNorm',
     'MaxPool2d',
+    'GRUCell',
+    'RNNCell',
     'Embedding',
     'TransformerDecoderLayer',
     'TransformerDecoder',
