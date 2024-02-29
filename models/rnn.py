@@ -32,16 +32,16 @@ class RNN(tnn.Module):
 
         self.lm_head = Linear(hidden_size, vocab_size)
 
-    def forward(self, idx):
-        N, S = idx.size()
-        emb = self.wte(idx) # (N, S, num_features)
+    def forward(self, x):
+        N, S = x.size()
+        x = self.wte(x) # (N, S, num_features)
 
-        hprev = self.h0.expand((N, -1))
+        h_prev = self.h0.expand((N, -1))
         hiddens = []
-        for i in range(S):
-            x = emb[:, i, :] # (N, num_features)
-            h = self.cell(x, hprev) #(N, hidden_size)
-            hprev = h
+        for t in range(S):
+            xt = x[:, t, :] # (N, num_features)
+            h = self.cell(xt, h_prev) #(N, hidden_size)
+            h_prev = h
             hiddens.append(h)
 
         y = self.lm_head(torch.stack(hiddens, dim=1))

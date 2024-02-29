@@ -20,6 +20,6 @@ class Bigram(nn.Module):
 
         self.bigram = nn.Parameter(torch.zeros((vocab_size, vocab_size)))
 
-    def forward(self, idx):
-        y = self.bigram[idx]
+    def forward(self, x):
+        y = self.bigram[x]
         return y
