@@ -34,8 +34,10 @@ class Transformer(tnn.Module):
         _, S = idx.shape
         attn_mask = torch.triu(torch.full((S, S), float('-inf')), diagonal=1)
 
-        tok_emb = self.wte(idx) # (N, S, E)
-        pos_emb = self.wpe(torch.arange(S, dtype=torch.long)).unsqueeze(0) # (1, S, E)
+        tok_emb = self.wte(idx) # (N, S, num_features)
+        pos_emb = self.wpe(torch.arange(S, dtype=torch.long)).unsqueeze(0) # (1, S, num_features)
         x = tok_emb + pos_emb
-        y = self.lm_head(self.ln(self.encoder(x, mask=attn_mask)))
+        x = self.encoder(x, mask=attn_mask)
+        x = self.ln(x)
+        y = self.lm_head(x)
         return y

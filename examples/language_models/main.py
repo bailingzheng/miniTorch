@@ -6,7 +6,7 @@ import torch.nn.functional as F
 from torch.utils.data import DataLoader
 
 from examples.language_models.data import CharDataset, InfiniteDataLoader
-from models import Bigram, MLP, Transformer
+from models import Bigram, MLP, RNN, Transformer
 from optim import AdamW
 from nn import LogSoftmax, NLLLoss
 
@@ -129,7 +129,7 @@ if __name__ == "__main__":
         "--type", 
         type=str, 
         default="transformer", 
-        help="model class type to use, bigram | mlp | transformer"
+        help="model class type to use, bigram | mlp | rnn | transformer"
     )
     parser.add_argument(
         "--num-layers", 
@@ -182,6 +182,8 @@ if __name__ == "__main__":
         model = Bigram(vocab_size, block_size)
     elif args.type == "mlp":
         model = MLP(vocab_size, block_size, args.num_features)
+    elif args.type == 'rnn':
+        model = RNN(vocab_size, block_size, args.num_features)
     elif args.type == "transformer":
         model = Transformer(vocab_size, block_size, args.num_features)
     else:
