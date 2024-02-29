@@ -21,28 +21,29 @@ class MLP(tnn.Module):
 
     def __init__(self, vocab_size, block_size, num_features):
         super().__init__()
-        dim_feedforward = num_features * 4
+        hidden_size = num_features * 4
          
         self.vocab_size = vocab_size
         self.block_size = block_size
         
         self.wte = Embedding(vocab_size + 1, num_features)
         self.mlp = tnn.Sequential(
-            Linear(num_features * block_size, dim_feedforward),
-            ReLU(),
-            Linear(dim_feedforward, vocab_size)
+            Linear(num_features * block_size, hidden_size),
+            ReLU()  
         )
+        self.lm_head = Linear(hidden_size, vocab_size)
 
     def forward(self, idx):
         embs = []
 
         for _ in range(self.block_size):
-            emb = self.wte(idx) # (N, S, E)
+            emb = self.wte(idx) # (N, S, num_features)
             embs.append(emb)
 
-            idx = torch.roll(idx, 1, 1)
+            idx = torch.roll(idx, shifts=1, dims=1)
             idx[:, 0] = self.vocab_size
 
-        x = torch.concat(embs, -1) # (N, S, E * S)
-        y  = self.mlp(x) # (N, S, V)
+        x = torch.concat(embs, dim=-1) # (N, S, num_features * S)
+        x = self.mlp(x) # (N, S, hidden_size)
+        y = self.lm_head(x)
         return y
