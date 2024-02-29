@@ -46,40 +46,39 @@ class RNNCell(RNNCellBase):
         bias - If False, then the layer does not use bias weights b_ih and b_hh. Default: True
 
     Shape
-        x, h0 -> h1
+        x, h_prev -> h
 
         x: (N, input_size) or (input_size)
-        h0: (N, hidden_size) or (hidden_size)
-        h1: (N, hidden_size) or (hidden_size)
+        h_prev, h: (N, hidden_size) or (hidden_size)
     """
 
     # torch.nn.RNNCell(input_size, hidden_size, bias=True, nonlinearity='tanh', device=None, dtype=None)
     def __init__(self, input_size, hidden_size, bias=True):
         super().__init__(input_size, hidden_size, bias, num_chunks=1)
 
-    def forward(self, x, h=None):
+    def forward(self, x, h_prev=None):
         is_batched = x.dim() == 2
 
         if not is_batched:
             x = x.unsqueeze(0)
 
-        if h is None:
-            h0 = torch.zeros((x.size(0), self.hidden_size))
+        if h_prev is None:
+            h_prev = torch.zeros((x.size(0), self.hidden_size))
         else:
-            h0 = h.unsqueeze(0) if not is_batched else h
-        # vf = _VF.rnn_tanh_cell(x, h0, self.weight_ih, self.weight_hh, self.bias_ih, self.bias_hh)
+            h_prev = h_prev.unsqueeze(0) if not is_batched else h_prev
+        # vf = _VF.rnn_tanh_cell(x, h_prev, self.weight_ih, self.weight_hh, self.bias_ih, self.bias_hh)
 
-        p1 = x @ self.weight_ih.t()
-        p2 = h0 @ self.weight_hh.t()
+        v1 = x @ self.weight_ih.t()
+        v2 = h_prev @ self.weight_hh.t()
         if self.bias:
-            p1 += self.bias_ih
-            p2 += self.bias_hh
-        h1 = F.tanh(p1 + p2)
+            v1 += self.bias_ih
+            v2 += self.bias_hh
+        h = F.tanh(v1 + v2)
 
         if not is_batched:
-            h1 = h1.squeeze(0)
-        # print((vf - h1).abs().max())
-        return h1
+            h = h.squeeze(0)
+        # print((vf - h).abs().max())
+        return h
 
         
 class GRUCell(RNNCellBase):
@@ -96,44 +95,45 @@ class GRUCell(RNNCellBase):
         bias - If False, then the layer does not use bias weights. Default: True
 
     Shape
-        x, h0 -> h1
+        x, h_prev -> h
 
         x: (N, input_size) or (input_size)
-        h0: (N, hidden_size) or (hidden_size)
-        h1: (N, hidden_size) or (hidden_size)
+        h_prev, h: (N, hidden_size) or (hidden_size)
     """
 
     # torch.nn.GRUCell(input_size, hidden_size, bias=True, device=None, dtype=None)
     def __init__(self, input_size, hidden_size, bias=True):
         super().__init__(input_size, hidden_size, bias, num_chunks=3)
 
-    def forward(self, x, h=None):
+    def forward(self, x, h_prev=None):
         is_batched = x.dim() == 2
 
         if not is_batched:
             x = x.unsqueeze(0)
 
-        if h is None:
-            h0 = torch.zeros((x.size(0), self.hidden_size))
+        if h_prev is None:
+            h_prev = torch.zeros((x.size(0), self.hidden_size))
         else:
-            h0 = h.unsqueeze(0) if not is_batched else h
-        # vf = _VF.gru_cell(x, h0, self.weight_ih, self.weight_hh, self.bias_ih, self.bias_hh)
+            h_prev = h_prev.unsqueeze(0) if not is_batched else h_prev
+        # vf = _VF.gru_cell(x, h_prev, self.weight_ih, self.weight_hh, self.bias_ih, self.bias_hh)
 
-        p1 = x @ self.weight_ih.t()
-        p2 = h0 @ self.weight_hh.t()
+        v1 = x @ self.weight_ih.t()
+        v2 = h_prev @ self.weight_hh.t()
         if self.bias:
-            p1 += self.bias_ih
-            p2 += self.bias_hh
+            v1 += self.bias_ih
+            v2 += self.bias_hh
+        l1 = v1.chunk(3, dim=1)
+        l2 = v2.chunk(3, dim=1)
 
-        r = F.sigmoid(p1.chunk(3, dim=1)[0] + p2.chunk(3, dim=1)[0])
-        z = F.sigmoid(p1.chunk(3, dim=1)[1] + p2.chunk(3, dim=1)[1])
-        n = F.tanh(p1.chunk(3, dim=1)[2] + r*(p2.chunk(3, dim=1)[2]))
-        h1 = (1 - z)*n + z*h0
+        r = F.sigmoid(l1[0] + l2[0])
+        z = F.sigmoid(l1[1] + l2[1])
+        n = F.tanh(l1[2] + r*l2[2])
+        h = (1 - z)*n + z*h_prev
 
         if not is_batched:
-            h1 = h1.squeeze(0)
-        # print((vf - h1).abs().max())
-        return h1
+            h = h.squeeze(0)
+        # print((vf - h).abs().max())
+        return h
 
 
 class LSTMCell(RNNCellBase):
@@ -152,46 +152,47 @@ class LSTMCell(RNNCellBase):
         bias - If False, then the layer does not use bias weights. Default: True
 
     Shape
-        x, (h0, c0) -> (h1, c1)
+        x, (h_prev, c_prev) -> (h, c)
 
         x: (N, input_size) or (input_size)
-        h0: (N, hidden_size) or (hidden_size)
-        c0: (N, hidden_size) or (hidden_size)
-        h1: (N, hidden_size) or (hidden_size)
-        c1: (N, hidden_size) or (hidden_size)
+        h_prev, c_prev, h, c: (N, hidden_size) or (hidden_size)
     """
 
     def __init__(self, input_size, hidden_size, bias=True):
         super().__init__(input_size, hidden_size, bias, num_chunks=4)
 
-    def forward(self, x, h=None):
+    def forward(self, x, v_prev=None):
         is_batched = x.dim() == 2
 
         if not is_batched:
             x = x.unsqueeze(0)
 
-        if h is None:
-            h0 = torch.zeros((x.size(0), self.hidden_size))
-            c0 = torch.zeros((x.size(0), self.hidden_size))
+        if v_prev is None:
+            h_prev = torch.zeros((x.size(0), self.hidden_size))
+            c_prev = torch.zeros((x.size(0), self.hidden_size))
         else:
-            (h0, c0) = (h[0].unsqueeze(0), h[1].unsqueeze(0)) if not is_batched else h
-        # vf = _VF.lstm_cell(x, (h0, c0), self.weight_ih, self.weight_hh, self.bias_ih, self.bias_hh)
+            h_prev = v_prev[0].unsqueeze(0) if not is_batched else v_prev[0]
+            c_prev = v_prev[1].unsqueeze(0) if not is_batched else v_prev[1]
+        # vf = _VF.lstm_cell(x, (h_prev, c_prev), self.weight_ih, self.weight_hh, self.bias_ih, self.bias_hh)
 
-        p1 = x @ self.weight_ih.t()
-        p2 = h0 @ self.weight_hh.t()
+        v1 = x @ self.weight_ih.t()
+        v2 = h_prev @ self.weight_hh.t()
         if self.bias:
-            p1 += self.bias_ih
-            p2 += self.bias_hh
+            v1 += self.bias_ih
+            v2 += self.bias_hh
+        l1 = v1.chunk(4, dim=1)
+        l2 = v2.chunk(4, dim=1)
 
-        i = F.sigmoid(p1.chunk(4, dim=1)[0] + p2.chunk(4, dim=1)[0])
-        f = F.sigmoid(p1.chunk(4, dim=1)[1] + p2.chunk(4, dim=1)[1])
-        g = F.tanh(p1.chunk(4, dim=1)[2] + p2.chunk(4, dim=1)[2])
-        o = F.sigmoid(p1.chunk(4, dim=1)[3] + p2.chunk(4, dim=1)[3])
-        c1 = f*c0 + i*g
-        h1 = o * F.tanh(c1)
+        i = F.sigmoid(l1[0] + l2[0])
+        f = F.sigmoid(l1[1] + l2[1])
+        g = F.tanh(l1[2] + l2[2])
+        o = F.sigmoid(l1[3] + l2[3])
+        c = f*c_prev + i*g
+        h = o * F.tanh(c)
 
         if not is_batched:
-            (h1, c1) = (h1.squeeze(0), c1.squeeze(0))
-        # print((vf[0] - h1).abs().max())
-        # print((vf[1] - c1).abs().max())
-        return (h1, c1)
+            h = h.squeeze(0)
+            c = c.squeeze(0)
+        # print((vf[0] - h).abs().max())
+        # print((vf[1] - c).abs().max())
+        return (h, c)

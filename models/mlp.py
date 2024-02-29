@@ -33,15 +33,14 @@ class MLP(tnn.Module):
         )
         self.lm_head = Linear(hidden_size, vocab_size)
 
-    def forward(self, idx):
+    def forward(self, x):
         embs = []
-
         for _ in range(self.block_size):
-            emb = self.wte(idx) # (N, S, num_features)
+            emb = self.wte(x) # (N, S, num_features)
             embs.append(emb)
 
-            idx = torch.roll(idx, shifts=1, dims=1)
-            idx[:, 0] = self.vocab_size
+            x = torch.roll(x, shifts=1, dims=1)
+            x[:, 0] = self.vocab_size
 
         x = torch.concat(embs, dim=-1) # (N, S, num_features * S)
         x = self.mlp(x) # (N, S, hidden_size)

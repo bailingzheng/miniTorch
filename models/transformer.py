@@ -30,13 +30,13 @@ class Transformer(tnn.Module):
         self.ln = LayerNorm(num_features)
         self.lm_head = Linear(num_features, vocab_size)
 
-    def forward(self, idx):
-        _, S = idx.shape
+    def forward(self, x):
+        _, S = x.shape
         attn_mask = torch.triu(torch.full((S, S), float('-inf')), diagonal=1)
-
-        tok_emb = self.wte(idx) # (N, S, num_features)
         pos_emb = self.wpe(torch.arange(S, dtype=torch.long)).unsqueeze(0) # (1, S, num_features)
-        x = tok_emb + pos_emb
+
+        x = self.wte(x) # (N, S, num_features)
+        x = x + pos_emb
         x = self.encoder(x, mask=attn_mask)
         x = self.ln(x)
         y = self.lm_head(x)
