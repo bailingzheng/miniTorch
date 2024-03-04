@@ -63,7 +63,11 @@ class TransformerDecoderLayer(nn.Module):
 
     # feed forward block
     def _ff_block(self, x):
-        x = self.linear2(self.dropout(self.activation(self.linear1(x))))
+        x = self.linear1(x)
+        x = self.activation(x)
+        x = self.dropout(x)
+        x = self.linear2(x)
+
         return self.dropout3(x)
 
     # forward(tgt, memory, tgt_mask=None, memory_mask=None, tgt_key_padding_mask=None, 
@@ -161,7 +165,11 @@ class TransformerEncoderLayer(nn.Module):
 
     # feed forward block
     def _ff_block(self, x):
-        x = self.linear2(self.dropout(self.activation(self.linear1(x))))
+        x = self.linear1(x)
+        x = self.activation(x)
+        x = self.dropout(x)
+        x = self.linear2(x)
+
         return self.dropout2(x)
 
     def forward(self, src, mask=None):
@@ -230,8 +238,7 @@ class Transformer(nn.Module):
     Shape
         (N, T, E)[tgt], (N, S, E)[src] -> (N, T, E)
 
-        where S is the source sequence length, T is the target sequence length, 
-        N is the batch size, E is the feature number
+        where S is source sequence length, T is target sequence length, N is batch size, E is embedding dimension.
 
     """
 

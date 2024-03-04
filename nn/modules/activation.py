@@ -101,15 +101,16 @@ class MultiheadAttention(nn.Module):
             value - Value embeddings of shape (N, S, E)
 
             attn_mask - If specified, a 2D or 3D mask preventing attention to certain positions. 
-            Must be of shape (T, S) or (N * num_heads, T, S). Binary and float masks are supported. 
-            For a binary mask, a True value indicates that the corresponding position is not allowed to attend. 
-            For a float mask, the mask values will be added to the attention weight. 
+            Must be of shape (T, S) or (N * num_heads, T, S). 
+            Binary and float masks are supported:
+                For a binary mask, a True value indicates that the corresponding position is not allowed to attend. 
+                For a float mask, the mask values will be added to the attention weight. 
 
         Shape
             (N, T, E)[query], (N, S, E)[key], (N, S, E)[value] -> (N, T, E)
 
             where N is batch size, T is target sequence length, S is source sequence length,
-            E is embedding dimension of query and key, and value.
+            E is embedding dimension of query, key, and value.
 
         """
 
