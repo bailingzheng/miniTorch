@@ -17,7 +17,6 @@ __all__ = [
 
 class TransformerDecoderLayer(nn.Module):
     """TransformerDecoderLayer is made up of self-attn, multi-head-attn and feedforward network. 
-    This standard decoder layer is based on the paper: Attention Is All You Need (https://arxiv.org/abs/1706.03762).
     
     Parameters
         d_model - the number of expected features in the input (required).
@@ -63,7 +62,11 @@ class TransformerDecoderLayer(nn.Module):
 
     # feed forward block
     def _ff_block(self, x):
-        x = self.linear2(self.dropout(self.activation(self.linear1(x))))
+        x = self.linear1(x)
+        x = self.activation(x)
+        x = self.dropout(x)
+        x = self.linear2(x)
+
         return self.dropout3(x)
 
     # forward(tgt, memory, tgt_mask=None, memory_mask=None, tgt_key_padding_mask=None, 
@@ -122,8 +125,7 @@ class TransformerDecoder(nn.Module):
 
 
 class TransformerEncoderLayer(nn.Module):
-    """TransformerEncoderLayer is made up of self-attn and feedforward network. 
-    This standard encoder layer is based on the paper: Attention Is All You Need (https://arxiv.org/abs/1706.03762).
+    """TransformerEncoderLayer is made up of self-attn and feedforward network.
 
     Parameters
         d_model - the number of expected features in the input (required).
@@ -161,7 +163,11 @@ class TransformerEncoderLayer(nn.Module):
 
     # feed forward block
     def _ff_block(self, x):
-        x = self.linear2(self.dropout(self.activation(self.linear1(x))))
+        x = self.linear1(x)
+        x = self.activation(x)
+        x = self.dropout(x)
+        x = self.linear2(x)
+
         return self.dropout2(x)
 
     def forward(self, src, mask=None):
@@ -181,7 +187,6 @@ class TransformerEncoderLayer(nn.Module):
 
 class TransformerEncoder(nn.Module):
     """TransformerEncoder is a stack of N encoder layers. 
-    Users can build the BERT model with corresponding parameters (https://arxiv.org/abs/1810.04805).
 
     Parameters
         encoder_layer - an instance of the TransformerEncoderLayer() class (required).
@@ -217,7 +222,8 @@ class TransformerEncoder(nn.Module):
 
 
 class Transformer(nn.Module):
-    """A transformer model. The architecture is based on the paper: Attention Is All You Need. 
+    """A transformer model. 
+    The architecture is based on the paper: Attention Is All You Need (https://arxiv.org/abs/1706.03762). 
 
     Parameters
         d_model - the number of expected features in the encoder/decoder inputs (default=512).
@@ -230,8 +236,7 @@ class Transformer(nn.Module):
     Shape
         (N, T, E)[tgt], (N, S, E)[src] -> (N, T, E)
 
-        where S is the source sequence length, T is the target sequence length, 
-        N is the batch size, E is the feature number
+        where S is source sequence length, T is target sequence length, N is batch size, E is embedding dimension.
 
     """
 

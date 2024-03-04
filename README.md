@@ -63,7 +63,7 @@ The APIs are almost the same as PyTorch, except that some optional parameters ar
 - Semantic Segmentation
     * UNet
 
-## Language Models
+## Sequence Models
 - Bigram
 - MLP
 - RNN
