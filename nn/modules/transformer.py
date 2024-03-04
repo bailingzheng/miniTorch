@@ -17,7 +17,6 @@ __all__ = [
 
 class TransformerDecoderLayer(nn.Module):
     """TransformerDecoderLayer is made up of self-attn, multi-head-attn and feedforward network. 
-    This standard decoder layer is based on the paper: Attention Is All You Need (https://arxiv.org/abs/1706.03762).
     
     Parameters
         d_model - the number of expected features in the input (required).
@@ -126,8 +125,7 @@ class TransformerDecoder(nn.Module):
 
 
 class TransformerEncoderLayer(nn.Module):
-    """TransformerEncoderLayer is made up of self-attn and feedforward network. 
-    This standard encoder layer is based on the paper: Attention Is All You Need (https://arxiv.org/abs/1706.03762).
+    """TransformerEncoderLayer is made up of self-attn and feedforward network.
 
     Parameters
         d_model - the number of expected features in the input (required).
@@ -189,7 +187,6 @@ class TransformerEncoderLayer(nn.Module):
 
 class TransformerEncoder(nn.Module):
     """TransformerEncoder is a stack of N encoder layers. 
-    Users can build the BERT model with corresponding parameters (https://arxiv.org/abs/1810.04805).
 
     Parameters
         encoder_layer - an instance of the TransformerEncoderLayer() class (required).
@@ -225,7 +222,8 @@ class TransformerEncoder(nn.Module):
 
 
 class Transformer(nn.Module):
-    """A transformer model. The architecture is based on the paper: Attention Is All You Need. 
+    """A transformer model. 
+    The architecture is based on the paper: Attention Is All You Need (https://arxiv.org/abs/1706.03762). 
 
     Parameters
         d_model - the number of expected features in the encoder/decoder inputs (default=512).
