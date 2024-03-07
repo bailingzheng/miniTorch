@@ -83,6 +83,8 @@ class RNNCell(RNNCellBase):
         
 class GRUCell(RNNCellBase):
     """A gated recurrent unit (GRU) cell.
+    The architecture is based on the paper: Learning Phrase Representations using RNN Encoder-Decoder for Statistical Machine Translation.
+    (https://arxiv.org/abs/1406.1078)
 
     r = sigmoid(x@W_ir.T + b_ir + h@W_hr.T + b_hr)
     z = sigmoid(x@W_iz.T + b_iz + h@W_hz.T + b_hz)
