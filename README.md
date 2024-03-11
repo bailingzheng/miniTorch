@@ -52,12 +52,16 @@ The APIs are almost the same as PyTorch, except that some optional parameters ar
 - RMSprop
 - SGD (with momentum)
 
+## Text Transforms
+- GPT2BPETokenizer
+
 ## Computer Vision Models
 - Classification
     * GoogLeNet
     * InceptionResnetV1
     * MobileNetV2
     * ResNet
+    * VGG
 - Object Detection
     * YOLOv1
 - Semantic Segmentation
@@ -68,6 +72,3 @@ The APIs are almost the same as PyTorch, except that some optional parameters ar
 - MLP
 - RNN
 - Transformer
-
-## Text Transforms
-- GPT2BPETokenizer

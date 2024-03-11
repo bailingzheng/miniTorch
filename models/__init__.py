@@ -7,4 +7,5 @@ from .resnet import *
 from .rnn import *
 from .transformer import *
 from .unet import *
+from .vgg import *
 from .yolov1 import *
