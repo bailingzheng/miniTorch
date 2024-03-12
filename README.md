@@ -57,6 +57,7 @@ The APIs are almost the same as PyTorch, except that some optional parameters ar
 
 ## Computer Vision Models
 - Classification
+    * AlexNet
     * GoogLeNet
     * InceptionResnetV1
     * MobileNetV2
