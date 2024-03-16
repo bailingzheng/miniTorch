@@ -1,5 +1,6 @@
 from .alexnet import *
 from .bigram import *
+from .dcgan import *
 from .googlenet import *
 from .inception_resnetv1 import *
 from .mlp import *

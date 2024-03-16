@@ -55,18 +55,16 @@ The APIs are almost the same as PyTorch, except that some optional parameters ar
 ## Text Transforms
 - GPT2BPETokenizer
 
-## Computer Vision Models
-- Classification
-    * AlexNet
-    * GoogLeNet
-    * InceptionResnetV1
-    * MobileNetV2
-    * ResNet
-    * VGG
-- Object Detection
-    * YOLOv1
-- Semantic Segmentation
-    * UNet
+## Convolutional Neural Networks
+- AlexNet
+- GoogLeNet
+- InceptionResnetV1
+- MobileNetV2
+- ResNet
+- VGG
+- YOLOv1
+- UNet
+- DCGAN
 
 ## Sequence Models
 - Bigram
