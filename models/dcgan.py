@@ -1,6 +1,7 @@
+import torch
 import torch.nn as tnn
 
-from nn import BatchNorm2d, Conv2d, LeakyReLU, ReLU, Tanh
+from nn import BatchNorm2d, Conv2d, LeakyReLU, Linear, ReLU, Tanh
 
 __all__ = [
     'Generator',
@@ -9,7 +10,7 @@ __all__ = [
 
 
 class Generator(tnn.Module):
-    """A network that maps the latent space vector z to a RGB image. 
+    """A network that maps the latent space vector z to an image. 
     The architecture is based on the paper: Unsupervised Representation Learning with Deep Convolutional Generative Adversarial Networks.
     (http://arxiv.org/abs/1511.06434)
 
@@ -23,33 +24,34 @@ class Generator(tnn.Module):
         (N, nz) -> (N, nc, 64, 64)
     """
 
-    def __init__(self, ngpu, nz=100, ngf=64, nc=3):
+    def __init__(self, ngpu, nz=100, ngf=128, nc=3):
         super().__init__()
         self.ngpu = ngpu
+        self.ngf = ngf
+        self.fc = Linear(nz, ngf * 8 * 4 * 4)
         self.net = tnn.Sequential(
             # conv1
-            tnn.ConvTranspose2d(nz, ngf * 8, kernel_size=4, stride=1, padding=0, bias=False), # (nz, 1, 1) -> (ngf * 8, 4, 4)
-            BatchNorm2d(ngf * 8),
-            ReLU(inplace=True),
-            # conv2
             tnn.ConvTranspose2d(ngf * 8, ngf * 4, kernel_size=4, stride=2, padding=1, bias=False), # (ngf * 4, 8, 8)
             BatchNorm2d(ngf * 4),
             ReLU(inplace=True),
-            # conv3
+            # conv2
             tnn.ConvTranspose2d(ngf * 4, ngf * 2, kernel_size=4, stride=2, padding=1, bias=False), # (ngf * 2, 16, 16)
             BatchNorm2d(ngf * 2),
             ReLU(inplace=True),
-            # conv4
+            # conv3
             tnn.ConvTranspose2d(ngf * 2, ngf, kernel_size=4, stride=2, padding=1, bias=False), # (ngf, 32, 32)
             BatchNorm2d(ngf),
             ReLU(inplace=True),
-            # conv5
+            # conv4
             tnn.ConvTranspose2d(ngf, nc, kernel_size=4, stride=2, padding=1, bias=True), # (nc, 64, 64)
             Tanh()
         )
 
     def forward(self, x):
-        return self.net(x)
+        x = self.fc(x)
+        x = x.view(-1, self.ngf * 8, 4, 4)
+        y = self.net(x)
+        return y
 
 
 class Discriminator(tnn.Module):
@@ -64,7 +66,7 @@ class Discriminator(tnn.Module):
         (N, nc, 64, 64) -> (N, 1)
     """
 
-    def __init__(self, ngpu, nc=3, ndf=64):
+    def __init__(self, ngpu, nc=3, ndf=128):
         super().__init__()
         self.ngpu = ngpu
         self.net = tnn.Sequential(
@@ -84,9 +86,12 @@ class Discriminator(tnn.Module):
             BatchNorm2d(ndf * 8),
             LeakyReLU(negative_slope=0.2, inplace=True),
             # conv5
-            Conv2d(ndf * 8, 1, kernel_size=4, stride=1, padding=0, bias=True), # (1, )
-            tnn.Sigmoid()
+            Conv2d(ndf * 8, 1, kernel_size=4, stride=1, padding=0, bias=True) # (1, 1, 1)
         )
+        self.softmax = tnn.Softmax(dim=-1)
 
     def forward(self, x):
-        return self.net(x)
+        x = self.net(x)
+        x = torch.flatten(x)
+        y = self.softmax(x)
+        return y
